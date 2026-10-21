@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createTemplate = ({point, offers}) => `
   <form class="event event--edit" action="#" method="post">
@@ -133,35 +133,43 @@ const createTemplate = ({point, offers}) => `
       </form>
       `;
 
-export default class FormView {
-
+export default class FormView extends AbstractView {
   #point = null;
   #offers = null;
+  #onFormSubmit = null;
+  #onRollupClick = null;
 
-  constructor({
-    point,
-    offers
-  }){
+  constructor({ point, offers, onFormSubmit, onRollupClick }) {
+    super();
     this.#point = point;
     this.#offers = offers;
+    this.#onFormSubmit = onFormSubmit;
+    this.#onRollupClick = onRollupClick;
+
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
+
+
+    this.element
+      .addEventListener('submit', this.#formSubmitHandler);
   }
 
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onRollupClick?.();
+  };
 
-  getTemplate() {
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#onFormSubmit?.();
+  };
+
+  get template() {
     return createTemplate({
       point: this.#point,
       offers: this.#offers
     });
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
