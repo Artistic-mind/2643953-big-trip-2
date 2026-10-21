@@ -1,7 +1,3 @@
-import { render } from '../render.js';
-
-
-import ListView from '../views/list-view.js';
 import PointsModel from '../models/points-model.js';
 import OffersModel from '../models/offers-model.js';
 import DestinationsModel from '../models/destinations-model.js';
@@ -23,14 +19,17 @@ export default class TripPresenter {
   }
 
   init() {
-  this.#pointsModel = new PointsModel();
-  this.#pointsModel.init();
+    this.#pointsModel = new PointsModel();
+    this.#pointsModel.init();
 
-  this.#offersModel = new OffersModel();
-  this.#offersModel.init();
+    this.#offersModel = new OffersModel();
+    this.#offersModel.init();
 
-  this.#destinationsModel = new DestinationsModel();
-  this.#destinationsModel.init();
+    this.#destinationsModel = new DestinationsModel();
+    this.#destinationsModel.init();
+
+
+
 
     this.#filterPresenter = new FilterPresenter();
     this.#filterPresenter.init(this.filterContainer);

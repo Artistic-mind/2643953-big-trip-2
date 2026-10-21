@@ -1,6 +1,15 @@
-import { createElement } from '../render.js';
-//import { pointsData } from '../mock/points.js';
-const createTemplate = ({point, destinationName}) => `
+import AbstractView from '../framework/view/abstract-view.js';
+
+
+const createOfferTemplate = (offer) => `
+  <li class="event__offer">
+    <span class="event__offer-title">${offer.title}</span>
+    &plus;&euro;&nbsp;
+    <span class="event__offer-price">${offer.price}</span>
+  </li>
+`;
+
+const createTemplate = ({point, destinationName, checkedOffers}) => `
   <li class="trip-events__item">
     <div class="event">
       <time class="event__date" datetime="2019-03-18">MAR 18</time>
@@ -21,11 +30,8 @@ const createTemplate = ({point, destinationName}) => `
       </p>
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        <li class="event__offer">
-          <span class="event__offer-title">$Order Uber</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">20</span>
-        </li>
+
+        ${checkedOffers.map((offer) => createOfferTemplate(offer)).join('')}
       </ul>
       <button class="event__favorite-btn event__favorite-btn--active" type="button">
         <span class="visually-hidden">Add to favorite</span>
@@ -40,30 +46,35 @@ const createTemplate = ({point, destinationName}) => `
   </li>
  `;
 
-export default class PointView {
+export default class PointView extends AbstractView {
   #point = null;
   #destinationName = null;
+  #checkedOffers = null;
+  #onEditClick = null;
 
-  constructor({ point, destinationName }){
+  constructor({ point, destinationName, checkedOffers, onEditClick }){
+    super();
     this.#point = point;
     this.#destinationName = destinationName;
+    this.#checkedOffers = checkedOffers;
+    this.#onEditClick = onEditClick;
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onEditClick?.();
+  };
+
+  get template() {
     return createTemplate({
       point: this.#point,
-      destinationName: this.#destinationName
+      destinationName: this.#destinationName,
+      checkedOffers: this.#checkedOffers,
+
     });
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
