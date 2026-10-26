@@ -6,15 +6,15 @@ export const destinationsData = [
     name: "Chamonix",
     pictures: [
       {
-        src: "img/photos/1.jpeg",
+        src: "img/photos/1.jpg",
         description: "Chamonix parliament building"
       },
       {
-        src: "img/photos/5.jpeg",
+        src: "img/photos/5.jpg",
         description: "Chamonix parliament building"
       },
       {
-        src: "img/photos/2.jpeg",
+        src: "img/photos/2.jpg",
         description: "Chamonix parliament building"
       }
     ]
@@ -25,7 +25,7 @@ export const destinationsData = [
     name: "Rome",
     pictures: [
       {
-        src: "img/photos/3.jpeg",
+        src: "img/photos/3.jpg",
         description: "Rome parliament building"
       }
     ]
@@ -36,7 +36,7 @@ export const destinationsData = [
     name: "Paris",
     pictures: [
       {
-        src: "img/photos/5.jpeg",
+        src: "img/photos/5.jpg",
         description: "Paris parliament building"
       }
     ]
@@ -47,7 +47,7 @@ export const destinationsData = [
     name: "London",
     pictures: [
       {
-        src: "img/photos/4.jpeg",
+        src: "img/photos/4.jpg",
         description: "London parliament building"
       }
     ]

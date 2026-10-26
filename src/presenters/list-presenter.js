@@ -9,6 +9,8 @@ export default class ListPresenter {
   #destinationsModel = null;
   #offersModel = null;
   #noPointsView = null;
+  #openedPoint = null;
+  #listPresenters = new Map();
 
   constructor({ pointsModel, destinationModel, offersModel }) {
     this.#pointsModel = pointsModel;
@@ -40,8 +42,22 @@ export default class ListPresenter {
         pointsModel: this.#pointsModel,
         destinationModel: this.#destinationsModel,
         offersModel: this.#offersModel,
+        onOpenPoint: this.#handleOpen,
+        onClosePoint: this.#handleClose
       });
       pointPresenter.init(this.#listView.element);
+      this.#listPresenters.set(point.id, pointPresenter);
     });
   }
+  #handleOpen = (id) => {
+    if(this.#openedPoint){
+      this.#listPresenters.get(this.#openedPoint).closeForm();
+    }
+    this.#openedPoint = id;
+  }
+
+  #handleClose = () => {
+    this.#openedPoint = null;
+  }
+
 }

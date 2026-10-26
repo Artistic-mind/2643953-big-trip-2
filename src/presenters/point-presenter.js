@@ -10,12 +10,22 @@ export default class PointPresenter {
   #point = null;
   #pointView = null;
   #formView = null;
-
-  constructor({ pointsModel, destinationModel, offersModel, point }) {
+  #onOpenPoint = null;
+  #onClosePoint = null;
+  constructor({
+    pointsModel,
+    destinationModel,
+    offersModel,
+    point,
+    onOpenPoint,
+    onClosePoint,
+  }) {
     this.#pointsModel = pointsModel;
     this.#destinationModel = destinationModel;
     this.#offersModel = offersModel;
     this.#point = point;
+    this.#onOpenPoint = onOpenPoint;
+    this.#onClosePoint = onClosePoint;
   }
 
   init(containerElement) {
@@ -23,7 +33,15 @@ export default class PointPresenter {
       point: this.#point,
       destinationName: this.#destinationModel.getNameById(this.#point.destination),
       checkedOffers: this.#getCheckedOffers(),
-      onEditClick: () => this.#replacePointToForm()
+      onEditClick: () => this.#openForm()
+    });
+
+      this.#formView = new FormView({
+      point: this.#point,
+      offers: this.#getCheckedOffers(),
+      destination: this.#destinationModel.getById(this.#point.destination),
+      onFormSubmit: () => this.#submitForm(),
+      onRollupClick: () => this.closeForm(),
     });
 
     render(this.#pointView, containerElement);
@@ -36,30 +54,42 @@ export default class PointPresenter {
     });
   }
 
-  #createFormView() {
-    return new FormView({
-      point: this.#point,
-      offers: this.#getCheckedOffers(),
-      onFormSubmit: () => this.#replaceFormToPoint(),
-      onRollupClick: () => this.#replaceFormToPoint(),
-    });
+  //
+
+  #openForm (){
+    this.#onOpenPoint(this.#point.id);
+    this.#replacePointToForm();
+    document.addEventListener('keydown', this.#escDownHandler);
+
+  }
+
+  #submitForm(){
+    this.closeForm();
   }
 
   #replacePointToForm() {
-    this.#formView = this.#createFormView();
+    //this.#formView = this.#createFormView();
     replace(this.#formView, this.#pointView);
-    document.addEventListener('keydown', this.#escDownHandler);
+
   }
 
   #replaceFormToPoint() {
     replace(this.#pointView, this.#formView);
-    document.removeEventListener('keydown', this.#escDownHandler);
+
   }
 
   #escDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#replaceFormToPoint();
+      this.closeForm();
     }
   };
+
+
+  closeForm(){
+    this.#replaceFormToPoint();
+    this.#onClosePoint();
+    document.removeEventListener('keydown', this.#escDownHandler);
+  }
+
 }
