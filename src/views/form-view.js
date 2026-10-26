@@ -1,6 +1,10 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-const createTemplate = ({point, offers}) => `
+const createPhotoTemplate = (picture) => `
+  <img class="event__photo" src="${picture.src}" alt="${picture.description}">
+`;
+
+const createTemplate = ({ point, offers, destination }) => `
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
@@ -109,7 +113,7 @@ const createTemplate = ({point, offers}) => `
                     id="event-offer-${item.id}"
                     type="checkbox"
                     name="event-offer-${item.id}"
-                    ${item.isChecked ? 'checked': ''}
+                    ${item.isChecked ? 'checked' : ''}
                   >
                   <label
                     class="event__offer-label"
@@ -127,7 +131,13 @@ const createTemplate = ({point, offers}) => `
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">Chamonix-Mont-Blanc (usually shortened to Chamonix) is a resort area near the junction of France, Switzerland and Italy. At the base of Mont Blanc, the highest summit in the Alps, it's renowned for its skiing.</p>
+            <p class="event__destination-description">${destination?.description ?? ''}</p>
+
+             <div class="event__photos-container">
+               <div class="event__photos-tape">
+                 ${(destination?.pictures ?? []).map(createPhotoTemplate).join('')}
+               </div>
+             </div>
           </section>
         </section>
       </form>
@@ -136,13 +146,15 @@ const createTemplate = ({point, offers}) => `
 export default class FormView extends AbstractView {
   #point = null;
   #offers = null;
+  #destination = null;
   #onFormSubmit = null;
   #onRollupClick = null;
 
-  constructor({ point, offers, onFormSubmit, onRollupClick }) {
+  constructor({ point, offers, destination, onFormSubmit, onRollupClick }) {
     super();
     this.#point = point;
     this.#offers = offers;
+    this.#destination = destination;
     this.#onFormSubmit = onFormSubmit;
     this.#onRollupClick = onRollupClick;
 
@@ -169,7 +181,8 @@ export default class FormView extends AbstractView {
   get template() {
     return createTemplate({
       point: this.#point,
-      offers: this.#offers
+      offers: this.#offers,
+      destination: this.#destination,
     });
   }
 }
