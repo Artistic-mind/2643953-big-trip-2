@@ -12,6 +12,7 @@ export default class PointPresenter {
   #formView = null;
   #onOpenPoint = null;
   #onClosePoint = null;
+
   constructor({
     pointsModel,
     destinationModel,
@@ -33,10 +34,11 @@ export default class PointPresenter {
       point: this.#point,
       destinationName: this.#destinationModel.getNameById(this.#point.destination),
       checkedOffers: this.#getCheckedOffers(),
-      onEditClick: () => this.#openForm()
+      onEditClick: () => this.#openForm(),
+      onFavoriteClick: () => this.#handleFavoriteClick(),
     });
 
-      this.#formView = new FormView({
+    this.#formView = new FormView({
       point: this.#point,
       offers: this.#getCheckedOffers(),
       destination: this.#destinationModel.getById(this.#point.destination),
@@ -50,32 +52,48 @@ export default class PointPresenter {
   #getCheckedOffers() {
     return getPreparedOffers({
       checkedOffers: this.#point.offers,
-      allOffers: this.#offersModel.getOffersByType(this.#point.type)
+      allOffers: this.#offersModel.getOffersByType(this.#point.type),
     });
   }
 
-  //
+  #handleFavoriteClick = () => {
+    const updatedPoint = {
+      ...this.#point,
+      isFavorite: !this.#point.isFavorite,
+    };
 
-  #openForm (){
+    this.#pointsModel.updatePoint(updatedPoint);
+    this.#point = updatedPoint;
+
+    const prevPointView = this.#pointView;
+
+    this.#pointView = new PointView({
+      point: this.#point,
+      destinationName: this.#destinationModel.getNameById(this.#point.destination),
+      checkedOffers: this.#getCheckedOffers(),
+      onEditClick: () => this.#openForm(),
+      onFavoriteClick: () => this.#handleFavoriteClick(),
+    });
+
+    replace(this.#pointView, prevPointView);
+  };
+
+  #openForm() {
     this.#onOpenPoint(this.#point.id);
     this.#replacePointToForm();
     document.addEventListener('keydown', this.#escDownHandler);
-
   }
 
-  #submitForm(){
+  #submitForm() {
     this.closeForm();
   }
 
   #replacePointToForm() {
-    //this.#formView = this.#createFormView();
     replace(this.#formView, this.#pointView);
-
   }
 
   #replaceFormToPoint() {
     replace(this.#pointView, this.#formView);
-
   }
 
   #escDownHandler = (evt) => {
@@ -85,11 +103,9 @@ export default class PointPresenter {
     }
   };
 
-
-  closeForm(){
+  closeForm() {
     this.#replaceFormToPoint();
     this.#onClosePoint();
     document.removeEventListener('keydown', this.#escDownHandler);
   }
-
 }

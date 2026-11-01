@@ -1,4 +1,6 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import { Types } from '../constants/constants.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+//import AbstractView from '../framework/view/abstract-view.js';
 
 const createPhotoTemplate = (picture) => `
   <img class="event__photo" src="${picture.src}" alt="${picture.description}">
@@ -17,51 +19,22 @@ const createTemplate = ({ point, offers, destination }) => `
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
+              ${Object.values(Types).map((item)=>`
+                <div class="event__type-item">
+                  <input
+                    id="event-type-${item}-1"
+                    class="event__type-input  visually-hidden"
+                    type="radio" name="event-type"
+                    value=${item}
+                    ${item===point.type? "checked" : ""}
+                  >
+                  <label
+                    class="event__type-label  event__type-label--${item}"
+                    for="event-type-${item}-1"
+                  >${item}</label>
+                </div>
+                `).join('')}
 
-              <div class="event__type-item">
-                <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                  <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                  <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                  <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                  <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                  <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
-                  <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                  <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                  <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-              </div>
-
-              <div class="event__type-item">
-                <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                  <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-              </div>
             </fieldset>
           </div>
       </div>
@@ -143,7 +116,7 @@ const createTemplate = ({ point, offers, destination }) => `
       </form>
       `;
 
-export default class FormView extends AbstractView {
+export default class FormView extends AbstractStatefulView {
   #point = null;
   #offers = null;
   #destination = null;
@@ -157,30 +130,47 @@ export default class FormView extends AbstractView {
     this.#destination = destination;
     this.#onFormSubmit = onFormSubmit;
     this.#onRollupClick = onRollupClick;
-
-
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#rollupClickHandler);
-
-
-    this.element
-      .addEventListener('submit', this.#formSubmitHandler);
+    this._setState({
+      point: this.#point,
+    })
+    this._restoreHandlers();
   }
 
-  #rollupClickHandler = (evt) => {
+  _restoreHandlers() {
+     this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#handleRollupClick);
+
+    this.element
+      .addEventListener('submit', this.#handleFormSubmit);
+
+    this.element
+      .querySelector('.event__type-group')
+      .addEventListener('change', this.#handleTypeChange);
+  }
+
+  #handleRollupClick = (evt) => {
     evt.preventDefault();
     this.#onRollupClick?.();
   };
 
-  #formSubmitHandler = (evt) => {
+  #handleFormSubmit = (evt) => {
     evt.preventDefault();
     this.#onFormSubmit?.();
   };
 
+  #handleTypeChange = ({target}) => {
+    this.updateElement({
+      point: {
+        ...this._state.point,
+        type: target.value,
+      }
+    })
+  }
+
   get template() {
     return createTemplate({
-      point: this.#point,
+      point: this._state.point,
       offers: this.#offers,
       destination: this.#destination,
     });
