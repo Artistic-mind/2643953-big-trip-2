@@ -32,10 +32,8 @@ export default class ListPresenter {
   //   render(this.#noPointsView, containerElement);
   // }
 
-  #renderPoints(containerElement) {
-    this.#listView = new ListView();
-    render(this.#listView, containerElement);
-
+  #renderPoints(listView) {
+    this.#listView = listView;
     this.#pointsModel.points.forEach((point) => {
       const pointPresenter = new PointPresenter({
         point,
