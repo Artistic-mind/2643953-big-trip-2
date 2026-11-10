@@ -1,4 +1,5 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+
 
 
 const createOfferTemplate = (offer) => `
@@ -9,7 +10,7 @@ const createOfferTemplate = (offer) => `
   </li>
 `;
 
-const createTemplate = ({point, destinationName, checkedOffers}) => `
+const createTemplate = ({point, destinationName, checkedOffers, isFavorite}) => `
   <li class="trip-events__item">
     <div class="event">
       <time class="event__date" datetime="2019-03-18">MAR 18</time>
@@ -34,7 +35,7 @@ const createTemplate = ({point, destinationName, checkedOffers}) => `
         ${checkedOffers.map((offer) => createOfferTemplate(offer)).join('')}
       </ul>
       <button
-        class="event__favorite-btn ${point.isFavorite ? 'event__favorite-btn--active' : ''}"
+        class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}"
         type="button"
       >
         <span class="visually-hidden">Add to favorite</span>
@@ -49,14 +50,20 @@ const createTemplate = ({point, destinationName, checkedOffers}) => `
   </li>
  `;
 
-export default class PointView extends AbstractView {
+export default class PointView extends AbstractStatefulView {
   #point = null;
   #destinationName = null;
   #checkedOffers = null;
   #onEditClick = null;
-   #onFavoriteClick = null;
+  #onFavoriteClick = null;
 
-  constructor({ point, destinationName, checkedOffers, onEditClick, onFavoriteClick }){
+  constructor({
+    point,
+    destinationName,
+    checkedOffers,
+    onEditClick,
+    onFavoriteClick,
+  }){
     super();
     this.#point = point;
     this.#destinationName = destinationName;
@@ -64,17 +71,24 @@ export default class PointView extends AbstractView {
     this.#onEditClick = onEditClick;
     this.#onFavoriteClick = onFavoriteClick;
 
-    this.element
-      .querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#editClickHandler);
+    this._setState({
 
-    this.element
-      .querySelector('.event__favorite-btn')
-      .addEventListener('click', this.#favoriteClickHandler);
+      isFavorite: this.#point.isFavorite
+    })
+
+    this._restoreHandlers();
   }
 
 
+ _restoreHandlers(){
+     this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#editClickHandler);
 
+     this.element
+     .querySelector('.event__favorite-btn')
+     .addEventListener('click', this.#handleFavoriteClick);
+ }
 
   #editClickHandler = (evt) => {
     evt.preventDefault();
@@ -91,7 +105,11 @@ export default class PointView extends AbstractView {
       point: this.#point,
       destinationName: this.#destinationName,
       checkedOffers: this.#checkedOffers,
-
+      isFavorite: this._state.isFavorite,
     });
   }
+
+  #handleFavoriteClick = () => {
+    this.#onFavoriteClick();
+  };
 }

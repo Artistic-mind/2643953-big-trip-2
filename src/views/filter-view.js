@@ -1,31 +1,48 @@
-import AbstractView from '../framework/view/abstract-view.js';
 
-const createTemplate = () => ` <form class="trip-filters" action="#" method="get">
-                <div class="trip-filters__filter">
-                  <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" checked>
-                  <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
-                </div>
+import { DEFAULT_FILTER, Filters } from '../constants/constants.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+const createTemplate = (activeFilter) => (`
+  <form class="trip-filters" action="#" method="get">
 
-                <div class="trip-filters__filter">
-                  <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future">
-                  <label class="trip-filters__filter-label" for="filter-future">Future</label>
-                </div>
+   ${Object.values(Filters).map((item)=>(`
+      <div class="trip-filters__filter">
+        <input
+         id="filter-${item}"
+          class="trip-filters__filter-input
+          visually-hidden"
+          type="radio"
+          name="trip-filter"
+          value="${item}"
+          ${activeFilter === item ? 'checked' : ''}
+        >
+       <label
+         class="trip-filters__filter-label"
+         for="filter-${item}"
+       >${item}</label>
+     </div>
+    `)).join('')}
+  </form> `);
 
-                <div class="trip-filters__filter">
-                  <input id="filter-present" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="present">
-                  <label class="trip-filters__filter-label" for="filter-present">Present</label>
-                </div>
+export default class FilterView extends AbstractStatefulView{
+  #onChange = null;
+  constructor({ filter, onChange}) {
+    super();
+    this.#onChange = onChange;
+    this._setState({
+      filter,
 
-                <div class="trip-filters__filter">
-                  <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past">
-                  <label class="trip-filters__filter-label" for="filter-past">Past</label>
-                </div>
-
-                <button class="visually-hidden" type="submit">Accept filter</button>
-              </form>`;
-
-export default class FilterView extends AbstractView{
-  get template() {
-    return createTemplate();
+    });
+     this._restoreHandlers();
   }
+  _restoreHandlers(){
+    this.element.addEventListener('change', this.#handleChange);
+  }
+  get template() {
+    return createTemplate(this._state.filter);
+  }
+
+  #handleChange = ({target}) => {
+
+     this.#onChange(target.value);
+  };
 }

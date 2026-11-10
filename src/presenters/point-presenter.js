@@ -35,12 +35,12 @@ export default class PointPresenter {
       destinationName: this.#destinationModel.getNameById(this.#point.destination),
       checkedOffers: this.#getCheckedOffers(),
       onEditClick: () => this.#openForm(),
-      onFavoriteClick: () => this.#handleFavoriteClick(),
+      onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#formView = new FormView({
       point: this.#point,
-      offers: this.#getCheckedOffers(),
+      offersByType:  this.#offersModel.offers,
       destination: this.#destinationModel.getById(this.#point.destination),
       onFormSubmit: () => this.#submitForm(),
       onRollupClick: () => this.closeForm(),
@@ -56,27 +56,27 @@ export default class PointPresenter {
     });
   }
 
-  #handleFavoriteClick = () => {
-    const updatedPoint = {
-      ...this.#point,
-      isFavorite: !this.#point.isFavorite,
-    };
+  // #handleFavoriteClick = () => {
+  //   const updatedPoint = {
+  //     ...this.#point,
+  //     isFavorite: !this.#point.isFavorite,
+  //   };
 
-    this.#pointsModel.updatePoint(updatedPoint);
-    this.#point = updatedPoint;
+  //   this.#pointsModel.updatePoint(updatedPoint);
+  //   this.#point = updatedPoint;
 
-    const prevPointView = this.#pointView;
+  //   const prevPointView = this.#pointView;
 
-    this.#pointView = new PointView({
-      point: this.#point,
-      destinationName: this.#destinationModel.getNameById(this.#point.destination),
-      checkedOffers: this.#getCheckedOffers(),
-      onEditClick: () => this.#openForm(),
-      onFavoriteClick: () => this.#handleFavoriteClick(),
-    });
+  //   this.#pointView = new PointView({
+  //     point: this.#point,
+  //     destinationName: this.#destinationModel.getNameById(this.#point.destination),
+  //     checkedOffers: this.#getCheckedOffers(),
+  //     onEditClick: () => this.#openForm(),
+  //     onFavoriteClick: () => this.#handleFavoriteClick(),
+  //   });
 
-    replace(this.#pointView, prevPointView);
-  };
+  //   replace(this.#pointView, prevPointView);
+  // };
 
   #openForm() {
     this.#onOpenPoint(this.#point.id);
@@ -104,8 +104,21 @@ export default class PointPresenter {
   };
 
   closeForm() {
+    this.#formView.reset(this.#point);
     this.#replaceFormToPoint();
     this.#onClosePoint();
     document.removeEventListener('keydown', this.#escDownHandler);
   }
+
+  #handleFavoriteClick = () => {
+
+    this.#pointsModel.changeFavorite(this.#point.id);
+  };
+
+  changeFavorite(point) {
+    this.#pointView.updateElement({
+      isFavorite: point.isFavorite
+    })
+  }
+
 }
