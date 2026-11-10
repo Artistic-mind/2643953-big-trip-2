@@ -7,11 +7,15 @@ import ListPresenter from './list-presenter.js';
 import CreatePointPresenter from './create-point-presenter.js';
 import ListView from '../views/list-view.js';
 import { render } from '../framework/render.js';
+import FilterModel from '../models/filter-model.js';
+import SortModel from '../models/sort-model.js';
 
 export default class TripPresenter {
   #pointsModel = null;
   #offersModel = null;
   #destinationsModel = null;
+  #filterModel = null;
+  #sortModel = null;
   #filterPresenter = null;
   #sortPresenter = null;
   #listPresenter = null;
@@ -38,17 +42,30 @@ export default class TripPresenter {
     this.#destinationsModel = new DestinationsModel();
     this.#destinationsModel.init();
 
-    this.#filterPresenter = new FilterPresenter();
+    this.#filterModel = new FilterModel();
+    this.#filterModel.init();
+
+    this.#sortModel = new SortModel();
+    this.#sortModel.init();
+
+    this.#filterPresenter = new FilterPresenter({
+      filterModel: this.#filterModel,
+    });
     this.#filterPresenter.init(this.filterContainer);
 
-    this.#sortPresenter = new SortPresenter();
+    this.#sortPresenter = new SortPresenter({
+      sortModel: this.#sortModel,
+      filterModel: this.#filterModel,
+    });
     this.#sortPresenter.init(this.tripContainer);
 
     this.#listView = new ListView();
     render(this.#listView, this.tripContainer);
 
     this.#createPointPresenter = new CreatePointPresenter({
-      formContainer: this.#listView.element
+      formContainer: this.#listView.element,
+      offersModel: this.#offersModel,
+      filterModel: this.#filterModel,
     });
     this.#createPointPresenter.init(this.tripMainContainer);
 

@@ -16,6 +16,8 @@ export default class ListPresenter {
     this.#pointsModel = pointsModel;
     this.#destinationsModel = destinationModel;
     this.#offersModel = offersModel;
+
+    this.#pointsModel.addObserver(this.#handlePointModelEvent);
   }
 
     init(containerElement) {
@@ -56,6 +58,18 @@ export default class ListPresenter {
 
   #handleClose = () => {
     this.#openedPoint = null;
+  }
+
+  #handlePointModelEvent = (type, data) => {
+    console.log('change-fav');
+
+
+    switch(type) {
+
+      case 'CHANGE_FAVORITE':
+         console.log(data);
+         this.#listPresenters.get(data.id).changeFavorite(data);
+    }
   }
 
 }
