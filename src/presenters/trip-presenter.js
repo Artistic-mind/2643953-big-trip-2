@@ -65,6 +65,7 @@ export default class TripPresenter {
     this.#createPointPresenter = new CreatePointPresenter({
       formContainer: this.#listView.element,
       offersModel: this.#offersModel,
+      destinationsModel: this.#destinationsModel,
       filterModel: this.#filterModel,
     });
     this.#createPointPresenter.init(this.tripMainContainer);

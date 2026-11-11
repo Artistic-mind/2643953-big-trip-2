@@ -41,7 +41,9 @@ export default class PointPresenter {
     this.#formView = new FormView({
       point: this.#point,
       offersByType:  this.#offersModel.offers,
-      destination: this.#destinationModel.getById(this.#point.destination),
+      destinations: this.#destinationModel.destinations,
+      isNew: false,
+      //destination: this.#destinationModel.getById(this.#point.destination),
       onFormSubmit: () => this.#submitForm(),
       onRollupClick: () => this.closeForm(),
     });
