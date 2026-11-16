@@ -1,5 +1,33 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration.js';
 
+dayjs.extend(duration);
+
+
+const DATE_FORMAT = 'DD/MM/YY HH:mm';
+
+const formatDate = (date) => dayjs(date).format(DATE_FORMAT);
+const formatMonthDay = (date) => dayjs(date).format('MMM D').toUpperCase(); // "MAR 18"
+const formatTime = (date) => dayjs(date).format('HH:mm');
+const formatDateTimeAttr = (date) => dayjs(date).format('YYYY-MM-DDTHH:mm');
+
+const formatDuration = (dateFrom, dateTo) => {
+  const diffMs = dayjs(dateTo).diff(dayjs(dateFrom));
+  const dur = dayjs.duration(diffMs);
+
+  const days = Math.floor(dur.asDays());
+  const hours = dur.hours();
+  const minutes = dur.minutes();
+
+  if (days > 0) {
+    return `${String(days).padStart(2, '0')}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+  }
+  if (hours > 0) {
+    return `${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+  }
+  return `${String(minutes).padStart(2, '0')}M`;
+};
 
 
 const createOfferTemplate = (offer) => `
@@ -13,18 +41,27 @@ const createOfferTemplate = (offer) => `
 const createTemplate = ({point, destinationName, checkedOffers, isFavorite}) => `
   <li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="2019-03-18">MAR 18</time>
+      <time
+        class="event__date"
+        datetime="${dayjs(point.dateFrom).format('YYYY-MM-DD')}"
+        > ${formatMonthDay(point.dateFrom)}</time>
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
       </div>
       <h3 class="event__title">${point.type} ${destinationName}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+          <time
+            class="event__start-time"
+            datetime="${formatDateTimeAttr(point.dateFrom)}"
+            >${formatTime(point.dateFrom)}</time>
           &mdash;
-          <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+          <time
+            class="event__end-time"
+            datetime="${formatDateTimeAttr(point.dateTo)}"
+            > ${formatTime(point.dateTo)}</time>
         </p>
-        <p class="event__duration">30M</p>
+        <p class="event__duration">${formatDuration(point.dateFrom, point.dateTo)}</p>
       </div>
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>

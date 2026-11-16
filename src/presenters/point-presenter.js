@@ -41,9 +41,11 @@ export default class PointPresenter {
     this.#formView = new FormView({
       point: this.#point,
       offersByType:  this.#offersModel.offers,
-      destination: this.#destinationModel.getById(this.#point.destination),
-      onFormSubmit: () => this.#submitForm(),
-      onRollupClick: () => this.closeForm(),
+      destinations: this.#destinationModel.destinations,
+      isNew: false,
+
+      onFormSubmit: this.#handleSubmitForm,
+      onRollupClick: this.#handleRollupClick,
     });
 
     render(this.#pointView, containerElement);
@@ -81,7 +83,7 @@ export default class PointPresenter {
   #openForm() {
     this.#onOpenPoint(this.#point.id);
     this.#replacePointToForm();
-    document.addEventListener('keydown', this.#escDownHandler);
+    //document.addEventListener('keydown', this.#escDownHandler);
   }
 
   #submitForm() {
@@ -96,18 +98,12 @@ export default class PointPresenter {
     replace(this.#pointView, this.#formView);
   }
 
-  #escDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      this.closeForm();
-    }
-  };
 
   closeForm() {
     this.#formView.reset(this.#point);
     this.#replaceFormToPoint();
-    this.#onClosePoint();
-    document.removeEventListener('keydown', this.#escDownHandler);
+    //this.#onClosePoint();
+    //document.removeEventListener('keydown', this.#escDownHandler);
   }
 
   #handleFavoriteClick = () => {
@@ -120,5 +116,17 @@ export default class PointPresenter {
       isFavorite: point.isFavorite
     })
   }
+
+   #handleRollupClick = () => {
+    this.#onClosePoint();
+
+   }
+
+   #handleSubmitForm = () => {
+
+     this.#onClosePoint();
+   }
+
+
 
 }
