@@ -9,6 +9,7 @@ import ListView from '../views/list-view.js';
 import { render } from '../framework/render.js';
 import FilterModel from '../models/filter-model.js';
 import SortModel from '../models/sort-model.js';
+import AppModel from '../models/app-model.js';
 
 export default class TripPresenter {
   #pointsModel = null;
@@ -16,6 +17,7 @@ export default class TripPresenter {
   #destinationsModel = null;
   #filterModel = null;
   #sortModel = null;
+  #appModel = null;
   #filterPresenter = null;
   #sortPresenter = null;
   #listPresenter = null;
@@ -26,7 +28,7 @@ export default class TripPresenter {
     tripContainer,
     filterContainer,
     tripMainContainer
-   }) {
+  }) {
     this.tripContainer = tripContainer;
     this.filterContainer = filterContainer;
     this.tripMainContainer = tripMainContainer;
@@ -48,6 +50,9 @@ export default class TripPresenter {
     this.#sortModel = new SortModel();
     this.#sortModel.init();
 
+    this.#appModel = new AppModel();
+    this.#appModel.addObserver(this.#handleAppModelEvent);
+
     this.#filterPresenter = new FilterPresenter({
       filterModel: this.#filterModel,
     });
@@ -67,6 +72,7 @@ export default class TripPresenter {
       offersModel: this.#offersModel,
       destinationsModel: this.#destinationsModel,
       filterModel: this.#filterModel,
+      appModel: this.#appModel,
     });
     this.#createPointPresenter.init(this.tripMainContainer);
 
@@ -74,7 +80,8 @@ export default class TripPresenter {
     this.#listPresenter = new ListPresenter({
       pointsModel: this.#pointsModel,
       destinationModel: this.#destinationsModel,
-      offersModel: this.#offersModel
+      offersModel: this.#offersModel,
+      appModel: this.#appModel,
     });
 
     this.#listPresenter.init(this.#listView);
@@ -82,4 +89,20 @@ export default class TripPresenter {
 
   }
 
+  #handleAppModelEvent = () => {
+    if (this.#appModel.openedForm) {
+      document.addEventListener('keydown', this.#handleDocumentKeydown);
+      return;
+    }
+    document.removeEventListener('keydown', this.#handleDocumentKeydown);
+  }
+
+  #handleDocumentKeydown = ({ key }) => {
+    if (key !== 'Escape') {
+      return;
+    }
+    this.#appModel.closeForm();
+  }
+
 }
+

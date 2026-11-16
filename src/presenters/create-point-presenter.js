@@ -9,12 +9,22 @@ export default class CreatePointPresenter {
   #offersModel = null;
   #destinationsModel;
   #filterModel = null;
+  #appModel = null;
 
-  constructor({ formContainer, offersModel, destinationsModel, filterModel }) {
+  constructor({
+    formContainer,
+    offersModel,
+    destinationsModel,
+    filterModel,
+    appModel,
+  }) {
     this.#formContainer = formContainer;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
     this.#filterModel = filterModel;
+    this.#appModel = appModel;
+
+    this.#appModel.addObserver(this.#handleAppModelEvent)
   }
   init(buttonContainer) {
     this.#createButtonView = new CreateButtonView({ onClick: this.#onClick });
@@ -46,16 +56,33 @@ export default class CreatePointPresenter {
     render(this.#formView, this.#formContainer, RenderPosition.AFTERBEGIN);
     this.#filterModel.setFilter(DEFAULT_FILTER);
     //this.#createButtonView.updateElement({ isDisabled: true });
+    this.#appModel.openCreateForm()
   };
 
   #onFormSubmit = () => {
     console.log('!!!');
   }
 
-  #onRollupClick = () => {
+  #close() {
     remove(this.#formView);
     this.#createButtonView.updateElement({
       isDisabled: false,
     });
+  }
+
+  #onRollupClick = () => {
+    this.#close();
+     this.#appModel.closeForm();
   };
+
+  #handleAppModelEvent = (type, { closed, opened }) => {
+    console.log(type)
+    if (closed) {
+      if (closed.type === 'create') {
+        this.#close()
+
+      }
+    }
+
+  }
 }

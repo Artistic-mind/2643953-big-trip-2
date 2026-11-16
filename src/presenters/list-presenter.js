@@ -8,31 +8,29 @@ export default class ListPresenter {
   #pointsModel = null;
   #destinationsModel = null;
   #offersModel = null;
+  #appModel = null;
   #noPointsView = null;
   #openedPoint = null;
   #listPresenters = new Map();
 
-  constructor({ pointsModel, destinationModel, offersModel }) {
+  constructor({
+    pointsModel,
+    destinationModel,
+    offersModel,
+    appModel
+  }) {
     this.#pointsModel = pointsModel;
     this.#destinationsModel = destinationModel;
     this.#offersModel = offersModel;
+    this.#appModel = appModel;
 
     this.#pointsModel.addObserver(this.#handlePointModelEvent);
+    this.#appModel.addObserver(this.#handleAppModelEvent);
   }
 
-    init(containerElement) {
-    // if (this.#pointsModel.points.length === 0) {
-    //   this.#renderNoPoints(containerElement);
-    //   return;
-    // }
-
+  init(containerElement) {
     this.#renderPoints(containerElement);
   }
-
-  // #renderNoPoints(containerElement) {
-  //   this.#noPointsView = new NoPointsView();
-  //   render(this.#noPointsView, containerElement);
-  // }
 
   #renderPoints(listView) {
     this.#listView = listView;
@@ -49,27 +47,35 @@ export default class ListPresenter {
       this.#listPresenters.set(point.id, pointPresenter);
     });
   }
+
   #handleOpen = (id) => {
-    if(this.#openedPoint){
-      this.#listPresenters.get(this.#openedPoint).closeForm();
-    }
-    this.#openedPoint = id;
+    this.#appModel.openEditForm(id);
   }
 
   #handleClose = () => {
-    this.#openedPoint = null;
+     this.#appModel.closeForm();
+
   }
 
   #handlePointModelEvent = (type, data) => {
     console.log('change-fav');
 
 
-    switch(type) {
+    switch (type) {
 
       case 'CHANGE_FAVORITE':
-         console.log(data);
-         this.#listPresenters.get(data.id).changeFavorite(data);
+        console.log(data);
+        this.#listPresenters.get(data.id).changeFavorite(data);
     }
   }
 
+  #handleAppModelEvent = (type, { closed, opened }) => {
+    console.log(type);
+
+      if (closed?.type === 'edit') {
+        this.#listPresenters.get(closed.id).closeForm();
+       // this.#openedPoint = null;
+      }
+
+  }
 }
