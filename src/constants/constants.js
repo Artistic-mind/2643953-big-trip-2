@@ -28,7 +28,7 @@ export const Sorting = {
     name: 'event',
     isDisabled: true,
   },
- TIME: {
+  TIME: {
     name: 'time',
     isDisabled: false,
   },
@@ -37,10 +37,16 @@ export const Sorting = {
     isDisabled: false,
   },
   OFFERS: {
-    name: 'Offers',
+    name: 'offers',
     isDisabled: true,
   },
 }
 
 export const DEFAULT_SORT = `sort-${Sorting.DAY.name}`;
+
+export const RenderTypes = {
+  MINOR: 'minor',
+  MAJOR: 'major',
+  DELETE: 'delete'
+}
 

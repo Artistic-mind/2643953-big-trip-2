@@ -55,6 +55,7 @@ export default class TripPresenter {
 
     this.#filterPresenter = new FilterPresenter({
       filterModel: this.#filterModel,
+      pointsModel: this.#pointsModel,
     });
     this.#filterPresenter.init(this.filterContainer);
 
@@ -82,6 +83,8 @@ export default class TripPresenter {
       destinationModel: this.#destinationsModel,
       offersModel: this.#offersModel,
       appModel: this.#appModel,
+      filterModel: this.#filterModel,
+      sortModel: this.#sortModel,
     });
 
     this.#listPresenter.init(this.#listView);
@@ -105,4 +108,3 @@ export default class TripPresenter {
   }
 
 }
-

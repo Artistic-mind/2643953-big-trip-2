@@ -1,7 +1,7 @@
 import { DEFAULT_FILTER } from '../constants/constants.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import CreateButtonView from '../views/create-button-view.js';
-import FormView from '../views/form-view.js';
+import FormView from '../views/form-view/form-view.js';
 export default class CreatePointPresenter {
   #createButtonView = null;
   #formView = null;

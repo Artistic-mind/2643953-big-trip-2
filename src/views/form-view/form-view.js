@@ -1,10 +1,14 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import dayjs from 'dayjs';
-import { Types } from '../constants/constants.js';
-import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { getPreparedOffers } from '../utils/offers.js';
+import { Types } from '../../constants/constants.js';
+import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
+import { getPreparedOffers } from '../../utils/offers.js';
+import { getOffersView } from './offers-view-part.js';
+import customParseFormat from 'dayjs/plugin/customParseFormat.js';
+import { getDestinationView } from './destination-view-part.js';
 
+dayjs.extend(customParseFormat);
 
 const DATE_FORMAT = 'DD/MM/YY HH:mm';
 
@@ -18,7 +22,7 @@ const createDestinationOptionTemplate = (d) => `<option value="${d.name}"></opti
 
 const createTemplate = ({ point, offers, destination, destinations, isNew }) => (`
   <li class="trip-events__item">
-    <form class="event event--edit" action="#" method="post">
+    <form class="event event--edit" action="#" method="post"  ${isNew ? 'style="background: #e4d8d8"' : ""}>
       <header class="event__header">
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -114,44 +118,9 @@ const createTemplate = ({ point, offers, destination, destinations, isNew }) => 
 
           </header>
           <section class="event__details">
-            <section class="event__section  event__section--offers">
-              <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            ${getOffersView(offers)}
+            ${getDestinationView(destination, createPhotoTemplate)}
 
-              <div class="event__available-offers">
-                <div class="event__available-offers">
-                ${offers.map((item) => (`
-                  <div class="event__offer-selector">
-                    <input
-                      class="event__offer-checkbox  visually-hidden"
-                      id="event-offer-${item.id}"
-                      type="checkbox"
-                      name="event-offer-${item.id}"
-                      ${item.isChecked ? 'checked' : ''}
-                    >
-                    <label
-                      class="event__offer-label"
-                      for="event-offer-${item.id}"
-                    >
-                      <span class="event__offer-title">${item.title}</span>
-                      &plus;&euro;&nbsp;
-                      <span class="event__offer-price">${item.price}</span>
-                    </label>
-                  </div>
-                `)).join('')}
-              </div>
-              </div>
-            </section>
-
-            <section class="event__section  event__section--destination">
-              <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${destination?.description ?? ''}</p>
-
-              <div class="event__photos-container">
-                <div class="event__photos-tape">
-                  ${(destination?.pictures ?? []).map(createPhotoTemplate).join('')}
-                </div>
-              </div>
-            </section>
           </section>
         </form>
   </li>
@@ -197,7 +166,6 @@ export default class FormView extends AbstractStatefulView {
 
   _restoreHandlers() {
 
-
     const dateFormat = 'd/m/y H:i';
 
     const startTimeInput = this.element.querySelector('#event-start-time-1');
@@ -218,11 +186,6 @@ export default class FormView extends AbstractStatefulView {
         time_24hr: true,
       });
     }
-
-
-
-
-
 
     if (!this._state.isNew) {
       this.element
@@ -254,6 +217,23 @@ export default class FormView extends AbstractStatefulView {
     this.element
       .querySelector('.event__input--destination')
       .addEventListener('change', this.#handleDestinationChange);
+
+      this.element
+      .querySelector('.event__available-offers')
+      .addEventListener('change', this.#handleOffersChange)
+  }
+
+  #handleOffersChange = () => {
+    const checkedOffersIds = Array.from(
+      this.element.querySelectorAll('.event__offer-checkbox:checked'),
+      (item) => item.value
+    );
+    this._setState({
+      point: {
+        ...this._state.point,
+        offers: checkedOffersIds
+      }
+    })
   }
 
   #handlePriceChange = (evt) => {
@@ -283,7 +263,8 @@ export default class FormView extends AbstractStatefulView {
 
   #handleFormSubmit = (evt) => {
     evt.preventDefault();
-    this.#onFormSubmit(this._state.point);
+    console.log(this._state)
+    this.#onFormSubmit(this.#parseStateToPoint(this._state));
   };
 
   #handleResetClick = (evt) => {
@@ -356,9 +337,13 @@ export default class FormView extends AbstractStatefulView {
         checkedOffers: [...(preparedPoint?.offers ?? [])],
         allOffers: this.#offersByType.find((item) => item.type === preparedPoint.type)?.offers,
       }),
-      //isNew: point === null,
       isNew,
     };
-
   };
+
+  #parseStateToPoint = (state) => {
+    return ({
+      ...state.point
+    })
+  }
 }

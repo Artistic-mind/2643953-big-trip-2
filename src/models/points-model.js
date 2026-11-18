@@ -1,6 +1,7 @@
 import { pointsData } from '../mock/points.js';
 import Observable from '../framework/observable.js';
-export default class PointsModel extends Observable{
+import { RenderTypes } from '../constants/constants.js';
+export default class PointsModel extends Observable {
   #points = [];
   init() {
     this.#points = [...pointsData];
@@ -21,14 +22,15 @@ export default class PointsModel extends Observable{
 
     //   return item;
     // })
-    this._notify('CHANGE_FAVORITE', this.#points[index]);
+    this._notify(RenderTypes.MINOR, this.#points[index]);
   }
 
-  //  updatePoint(updatedPoint) {
-  //   this.#points = this.#points.map((point) =>
-  //     point.id === updatedPoint.id ? updatedPoint : point
-  //   );
+  updatePoint(updatedPoint) {
+    this.#points = this.#points.map((point) =>
+      point.id === updatedPoint.id ? updatedPoint : point
+    );
 
-
+    this._notify(RenderTypes.MAJOR, updatedPoint);
+  }
 
 }

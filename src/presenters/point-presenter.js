@@ -1,6 +1,6 @@
-import { render, replace } from '../framework/render.js';
+import { remove, render, replace } from '../framework/render.js';
 import { getPreparedOffers } from '../utils/offers.js';
-import FormView from '../views/form-view.js';
+import FormView from '../views/form-view/form-view.js';
 import PointView from '../views/point-view.js';
 
 export default class PointPresenter {
@@ -40,10 +40,9 @@ export default class PointPresenter {
 
     this.#formView = new FormView({
       point: this.#point,
-      offersByType:  this.#offersModel.offers,
+      offersByType: this.#offersModel.offers,
       destinations: this.#destinationModel.destinations,
       isNew: false,
-
       onFormSubmit: this.#handleSubmitForm,
       onRollupClick: this.#handleRollupClick,
     });
@@ -58,32 +57,18 @@ export default class PointPresenter {
     });
   }
 
-  // #handleFavoriteClick = () => {
-  //   const updatedPoint = {
-  //     ...this.#point,
-  //     isFavorite: !this.#point.isFavorite,
-  //   };
+  #handleRollupClick = () => {
+    this.#onClosePoint();
+  }
 
-  //   this.#pointsModel.updatePoint(updatedPoint);
-  //   this.#point = updatedPoint;
-
-  //   const prevPointView = this.#pointView;
-
-  //   this.#pointView = new PointView({
-  //     point: this.#point,
-  //     destinationName: this.#destinationModel.getNameById(this.#point.destination),
-  //     checkedOffers: this.#getCheckedOffers(),
-  //     onEditClick: () => this.#openForm(),
-  //     onFavoriteClick: () => this.#handleFavoriteClick(),
-  //   });
-
-  //   replace(this.#pointView, prevPointView);
-  // };
+  #handleSubmitForm = (point) => {
+    this.#onClosePoint();
+    this.#pointsModel.updatePoint(point)
+  }
 
   #openForm() {
     this.#onOpenPoint(this.#point.id);
     this.#replacePointToForm();
-    //document.addEventListener('keydown', this.#escDownHandler);
   }
 
   #submitForm() {
@@ -98,35 +83,22 @@ export default class PointPresenter {
     replace(this.#pointView, this.#formView);
   }
 
-
   closeForm() {
     this.#formView.reset(this.#point);
     this.#replaceFormToPoint();
-    //this.#onClosePoint();
-    //document.removeEventListener('keydown', this.#escDownHandler);
   }
 
   #handleFavoriteClick = () => {
-
     this.#pointsModel.changeFavorite(this.#point.id);
   };
 
-  changeFavorite(point) {
-    this.#pointView.updateElement({
-      isFavorite: point.isFavorite
-    })
+  updatePoint(point) {
+    this.#pointView.updateElement({...point})
   }
 
-   #handleRollupClick = () => {
-    this.#onClosePoint();
-
-   }
-
-   #handleSubmitForm = () => {
-
-     this.#onClosePoint();
-   }
-
-
+  destroy(){
+    remove(this.#pointView);
+    remove(this.#formView);
+  }
 
 }
