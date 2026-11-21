@@ -1,34 +1,78 @@
-import { pointsData } from '../mock/points.js';
 import Observable from '../framework/observable.js';
-export default class PointsModel extends Observable{
+import { RenderTypes } from '../constants/constants.js';
+
+export default class PointsModel extends Observable {
   #points = [];
-  init() {
-    this.#points = [...pointsData];
+  #pointsApiService = null;
+
+  constructor({ pointsApiService }) {
+    super();
+    this.#pointsApiService = pointsApiService;
   }
 
   get points() {
     return this.#points;
   }
 
-  changeFavorite(idPoint) {
-
-    const index = this.#points.findIndex((item) => idPoint === item.id);
-    this.#points[index].isFavorite = !this.#points[index].isFavorite;
-    // this.#points = this.#points.map((item)=>{
-    //   if(idPoint === item.id){
-    //     item.isFavorite = !item.isFavorite
-    //   }
-
-    //   return item;
-    // })
-    this._notify('CHANGE_FAVORITE', this.#points[index]);
+  async init() {
+    this.#points = await this.#pointsApiService.getPoints();
   }
 
-  //  updatePoint(updatedPoint) {
-  //   this.#points = this.#points.map((point) =>
-  //     point.id === updatedPoint.id ? updatedPoint : point
-  //   );
+  async addPoint(point) {
+    const createdPoint = await this.#pointsApiService.addPoint(point);
 
+    this.#points = [...this.#points, createdPoint];
+    this._notify(RenderTypes.MAJOR, createdPoint);
 
+    return createdPoint;
+  }
 
+  async updatePoint(updatedPoint, renderType = RenderTypes.MAJOR) {
+    const index = this.#points.findIndex(
+      (point) => point.id === updatedPoint.id
+    );
+
+    if (index === -1) {
+      throw new Error(`Point ${updatedPoint.id} was not found`);
+    }
+
+    const savedPoint = await this.#pointsApiService.updatePoint(updatedPoint);
+
+    this.#points = this.#points.map((point) =>
+      point.id === savedPoint.id ? savedPoint : point
+    );
+
+    this._notify(renderType, savedPoint);
+
+    return savedPoint;
+  }
+
+  async changeFavorite(id) {
+    const point = this.#points.find((item) => item.id === id);
+
+    if (!point) {
+      throw new Error(`Point ${id} was not found`);
+    }
+
+    return this.updatePoint(
+      {
+        ...point,
+        isFavorite: !point.isFavorite,
+      },
+      RenderTypes.MINOR
+    );
+  }
+
+  async deletePoint(id) {
+    const point = this.#points.find((item) => item.id === id);
+
+    if (!point) {
+      throw new Error(`Point ${id} was not found`);
+    }
+
+    await this.#pointsApiService.deletePoint(id);
+
+    this.#points = this.#points.filter((item) => item.id !== id);
+    this._notify(RenderTypes.DELETE, point);
+  }
 }

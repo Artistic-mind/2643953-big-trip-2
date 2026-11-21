@@ -16,7 +16,7 @@ export default class CreateButtonView extends AbstractStatefulView {
     super();
     this.#onClick = onClick;
     this._setState({
-      isDisabled: false
+      isDisabled: true,
     });
     this._restoreHandlers();
   }

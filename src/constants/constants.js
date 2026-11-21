@@ -1,3 +1,31 @@
+export const AUTHORIZATION = `Basic ${crypto.randomUUID()}`;
+export const SERVER = 'https://22.objects.htmlacademy.pro/big-trip';
+
+export const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
+export const EndPoints = {
+  POINTS: 'points',
+  OFFERS: 'offers',
+  DESTINATIONS: 'destinations',
+  POINT: 'points/:id'
+};
+
+export const AppStatus = {
+  LOADING: 'loading',
+  READY: 'ready',
+  ERROR: 'error',
+};
+
+export const AppMessages = {
+  [AppStatus.LOADING]: 'Loading...',
+  [AppStatus.ERROR]: 'Failed to load latest route information',
+}
+
 export const Types = {
   TAXI: 'taxi',
   BUS: 'bus',
@@ -9,6 +37,21 @@ export const Types = {
   SIGHTSEEING: 'sightseeing',
   RESTAURANT: 'restaurant',
 };
+
+export const DEFAULT_TYPE = Types.FLIGHT;
+
+export const DEFAULT_POINT = {
+  basePrice: 0,
+  dateFrom: '',
+  dateTo: '',
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: DEFAULT_TYPE,
+};
+
+export const DATEPICKER_FORMAT = 'd/m/y H:i';
+
 export const Filters = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
@@ -17,7 +60,12 @@ export const Filters = {
 };
 export const DEFAULT_FILTER = Filters.EVERYTHING;
 
-
+export const EmptyMessages = {
+  [Filters.EVERYTHING]: 'Click New Event to create your first point',
+  [Filters.PAST]: 'There are no past events now',
+  [Filters.PRESENT]: 'There are no present events now',
+  [Filters.FUTURE]: 'There are no future events now',
+};
 
 export const Sorting = {
   DAY: {
@@ -28,7 +76,7 @@ export const Sorting = {
     name: 'event',
     isDisabled: true,
   },
- TIME: {
+  TIME: {
     name: 'time',
     isDisabled: false,
   },
@@ -37,10 +85,22 @@ export const Sorting = {
     isDisabled: false,
   },
   OFFERS: {
-    name: 'Offers',
+    name: 'offers',
     isDisabled: true,
   },
 }
 
 export const DEFAULT_SORT = `sort-${Sorting.DAY.name}`;
+
+export const RenderTypes = {
+  MINOR: 'minor',
+  MAJOR: 'major',
+  DELETE: 'delete'
+};
+
+export const SortEventTypes = {
+  SORT_CHANGED: 'SORT_CHANGED',
+  SORT_ON: 'SORT_ON',
+  SORT_OFF: 'SORT_OFF',
+}
 

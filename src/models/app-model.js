@@ -1,10 +1,25 @@
+import { AppStatus } from '../constants/constants.js';
 import Observable from '../framework/observable.js';
 
 export default class AppModel extends Observable {
   #openedForm = null;
+  #appStatus = AppStatus.LOADING;
 
   get openedForm() {
     return this.#openedForm;
+  }
+
+  get appStatus() {
+    return this.#appStatus;
+  }
+
+  setAppStatus(status) {
+    if (this.#appStatus === status) {
+      return;
+    }
+
+    this.#appStatus = status;
+    this._notify('STATUS', { status });
   }
 
   openEditForm(id) {
@@ -31,7 +46,7 @@ export default class AppModel extends Observable {
   }
 
   closeForm() {
-    if(!this.#openedForm){
+    if (!this.#openedForm) {
       return;
     }
 

@@ -1,48 +1,52 @@
 
 import { DEFAULT_FILTER, Filters } from '../constants/constants.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-const createTemplate = (activeFilter) => (`
+const createTemplate = ({filter, filters}) => (`
   <form class="trip-filters" action="#" method="get">
 
-   ${Object.values(Filters).map((item)=>(`
+   ${filters.map((item) => (`
       <div class="trip-filters__filter">
         <input
-         id="filter-${item}"
+         id="filter-${item.name}"
           class="trip-filters__filter-input
           visually-hidden"
           type="radio"
           name="trip-filter"
-          value="${item}"
-          ${activeFilter === item ? 'checked' : ''}
+          value="${item.name}"
+          ${filter === item.name ? 'checked' : ''}
+          ${item.isDisabled ? 'disabled' : ''}
         >
        <label
          class="trip-filters__filter-label"
-         for="filter-${item}"
-       >${item}</label>
+         for="filter-${item.name}"
+       >${item.name}</label>
      </div>
     `)).join('')}
   </form> `);
 
-export default class FilterView extends AbstractStatefulView{
+export default class FilterView extends AbstractStatefulView {
   #onChange = null;
-  constructor({ filter, onChange}) {
+  constructor({ filter, onChange, filters }) {
     super();
     this.#onChange = onChange;
     this._setState({
       filter,
-
+      filters
     });
-     this._restoreHandlers();
+    this._restoreHandlers();
   }
-  _restoreHandlers(){
+  _restoreHandlers() {
     this.element.addEventListener('change', this.#handleChange);
   }
   get template() {
-    return createTemplate(this._state.filter);
+    return createTemplate({
+      filter: this._state.filter,
+      filters: this._state.filters
+    });
   }
 
-  #handleChange = ({target}) => {
+  #handleChange = ({ target }) => {
 
-     this.#onChange(target.value);
+    this.#onChange(target.value);
   };
 }
