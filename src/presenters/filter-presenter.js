@@ -6,13 +6,16 @@ export default class FilterPresenter {
   #filterView = null;
   #filterModel = null;
   #pointsModel = null;
+  #appModel = null;
 
-  constructor({ filterModel, pointsModel }) {
+  constructor({ filterModel, pointsModel, appModel }) {
     this.#filterModel = filterModel;
     this.#pointsModel = pointsModel;
+    this.#appModel = appModel;
 
     this.#filterModel.addObserver(this.#handleFilterModelEvent);
     this.#pointsModel.addObserver(this.#handlePointsModelEvent);
+    this.#appModel.addObserver(this.#handleAppModelChange);
   }
 
   init(containerElement) {
@@ -37,6 +40,19 @@ export default class FilterPresenter {
   #handlePointsModelEvent = () => {
     this.#filterView.updateElement({
       filters: getFilters(this.#pointsModel.points)
+    });
+  }
+
+  #handleAppModelChange = (type) => {
+    if (type === 'STATUS') {
+      this.#updateView();
+    }
+  };
+
+  #updateView() {
+    this.#filterView.updateElement({
+      filter: this.#filterModel.filter,
+      filters: getFilters(this.#pointsModel.points),
     });
   }
 }

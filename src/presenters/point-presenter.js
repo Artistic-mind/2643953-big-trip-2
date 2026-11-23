@@ -1,5 +1,9 @@
 import { remove, render, replace } from '../framework/render.js';
 import { getPreparedOffers } from '../utils/offers.js';
+import {
+  setFormPending,
+  showFormError,
+} from '../utils/form-feedback.js';
 import FormView from '../views/form-view/form-view.js';
 import PointView from '../views/point-view.js';
 
@@ -7,24 +11,30 @@ export default class PointPresenter {
   #pointsModel = null;
   #destinationModel = null;
   #offersModel = null;
+
   #point = null;
   #pointView = null;
   #formView = null;
+
   #onOpenPoint = null;
   #onClosePoint = null;
 
+  #isEditing = false;
+  #isPending = false;
+  #isFavoritePending = false;
+
   constructor({
+    point,
     pointsModel,
     destinationModel,
     offersModel,
-    point,
     onOpenPoint,
     onClosePoint,
   }) {
+    this.#point = point;
     this.#pointsModel = pointsModel;
     this.#destinationModel = destinationModel;
     this.#offersModel = offersModel;
-    this.#point = point;
     this.#onOpenPoint = onOpenPoint;
     this.#onClosePoint = onClosePoint;
   }
@@ -32,9 +42,11 @@ export default class PointPresenter {
   init(containerElement) {
     this.#pointView = new PointView({
       point: this.#point,
-      destinationName: this.#destinationModel.getNameById(this.#point.destination),
+      destinationName: this.#destinationModel.getNameById(
+        this.#point.destination
+      ),
       checkedOffers: this.#getCheckedOffers(),
-      onEditClick: () => this.#openForm(),
+      onEditClick: () => this.#onOpenPoint(this.#point.id),
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
@@ -43,8 +55,9 @@ export default class PointPresenter {
       offersByType: this.#offersModel.offers,
       destinations: this.#destinationModel.destinations,
       isNew: false,
-      onFormSubmit: this.#handleSubmitForm,
+      onFormSubmit: this.#handleFormSubmit,
       onRollupClick: this.#handleRollupClick,
+      onResetClick: this.#handleDeleteClick,
     });
 
     render(this.#pointView, containerElement);
@@ -57,48 +70,111 @@ export default class PointPresenter {
     });
   }
 
-  #handleRollupClick = () => {
-    this.#onClosePoint();
-  }
+  openForm() {
+    if (this.#isEditing) {
+      return;
+    }
 
-  #handleSubmitForm = (point) => {
-    this.#onClosePoint();
-    this.#pointsModel.updatePoint(point)
-  }
-
-  #openForm() {
-    this.#onOpenPoint(this.#point.id);
-    this.#replacePointToForm();
-  }
-
-  #submitForm() {
-    this.closeForm();
-  }
-
-  #replacePointToForm() {
     replace(this.#formView, this.#pointView);
-  }
-
-  #replaceFormToPoint() {
-    replace(this.#pointView, this.#formView);
+    this.#isEditing = true;
   }
 
   closeForm() {
-    this.#formView.reset(this.#point);
-    this.#replaceFormToPoint();
-  }
+    if (!this.#isEditing) {
+      return;
+    }
 
-  #handleFavoriteClick = () => {
-    this.#pointsModel.changeFavorite(this.#point.id);
-  };
+    this.#formView.reset(this.#point);
+    replace(this.#pointView, this.#formView);
+    this.#isEditing = false;
+  }
 
   updatePoint(point) {
-    this.#pointView.updateElement({...point})
+    this.#point = point;
+    this.#pointView.updateElement({
+      isFavorite: point.isFavorite,
+    });
   }
 
-  destroy(){
-    remove(this.#pointView);
-    remove(this.#formView);
+  destroy() {
+    if (this.#isEditing) {
+      remove(this.#formView);
+    } else {
+      remove(this.#pointView);
+      this.#formView.removeElement();
+    }
+
+    this.#isEditing = false;
   }
 
+  #handleRollupClick = () => {
+    if (!this.#isPending) {
+      this.#onClosePoint();
+    }
+  };
+
+  #handleFormSubmit = async (updatedPoint) => {
+    if (this.#isPending) {
+      return;
+    }
+
+    this.#isPending = true;
+    setFormPending(this.#formView, 'saving');
+
+    try {
+      await this.#pointsModel.updatePoint({
+        ...updatedPoint,
+        id: this.#point.id,
+      });
+
+      this.#onClosePoint();
+    } catch (error) {
+      console.error('Failed to update point:', error);
+
+      this.#isPending = false;
+      setFormPending(this.#formView);
+      showFormError(this.#formView, 'Could not save the event. Try again.');
+    }
+  };
+
+  #handleDeleteClick = async () => {
+    if (this.#isPending) {
+      return;
+    }
+
+    this.#isPending = true;
+    setFormPending(this.#formView, 'deleting');
+
+    try {
+      await this.#pointsModel.deletePoint(this.#point.id);
+      this.#onClosePoint();
+    } catch (error) {
+      console.error('Failed to delete point:', error);
+
+      this.#isPending = false;
+      setFormPending(this.#formView);
+      showFormError(this.#formView, 'Could not delete the event. Try again.');
+    }
+  };
+
+  #handleFavoriteClick = async () => {
+    if (this.#isFavoritePending) {
+      return;
+    }
+
+    this.#isFavoritePending = true;
+
+    try {
+      await this.#pointsModel.changeFavorite(this.#point.id);
+    } catch (error) {
+      console.error('Failed to update favorite:', error);
+
+      this.#pointView.element.classList.add('shake');
+      setTimeout(() => {
+        this.#pointView.element.classList.remove('shake');
+      }, 600);
+    } finally {
+      this.#isFavoritePending = false;
+    }
+  };
 }

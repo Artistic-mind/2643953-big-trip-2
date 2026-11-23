@@ -1,20 +1,23 @@
-import { RenderTypes } from '../constants/constants.js';
-import { render } from '../framework/render.js';
+import {
+  AppStatus,
+  RenderTypes,
+  SortEventTypes,
+} from '../constants/constants.js';
 import { getFilteredPoints } from '../utils/filter-points.js';
 import { getSortedPoints } from '../utils/sort-points.js';
 import PointPresenter from './point-presenter.js';
 
 export default class ListPresenter {
-  #listView = null;
   #pointsModel = null;
   #destinationsModel = null;
   #offersModel = null;
   #appModel = null;
-  #noPointsView = null;
-  #openedPoint = null;
   #filterModel = null;
   #sortModel = null;
+
   #listPresenters = new Map();
+  #renderListView = null;
+  #removeListView = null;
 
   constructor({
     pointsModel,
@@ -23,6 +26,8 @@ export default class ListPresenter {
     appModel,
     filterModel,
     sortModel,
+    renderListView,
+    removeListView,
   }) {
     this.#pointsModel = pointsModel;
     this.#destinationsModel = destinationModel;
@@ -30,6 +35,8 @@ export default class ListPresenter {
     this.#appModel = appModel;
     this.#filterModel = filterModel;
     this.#sortModel = sortModel;
+    this.#renderListView = renderListView;
+    this.#removeListView = removeListView;
 
     this.#pointsModel.addObserver(this.#handlePointModelEvent);
     this.#appModel.addObserver(this.#handleAppModelEvent);
@@ -37,23 +44,42 @@ export default class ListPresenter {
     this.#filterModel.addObserver(this.#handleFilterPointEvent);
   }
 
-  init(containerElement) {
-    this.#listView = containerElement;
+  init() {
     this.#renderPoints();
   }
 
   #getPreparedPointList() {
-    console.log(this.#filterModel.filter)
-    const filteredPoints = getFilteredPoints[this.#filterModel.filter](this.#pointsModel.points);
-    const sortedPoints = getSortedPoints[this.#sortModel.sort](filteredPoints);
-    console.log(this.#sortModel.sort)
-    return sortedPoints;
+    const filteredPoints = getFilteredPoints[this.#filterModel.filter](
+      this.#pointsModel.points
+    );
+
+    return getSortedPoints[this.#sortModel.sort](filteredPoints);
   }
 
   #renderPoints() {
+
+    if (this.#appModel.openedForm?.type === 'edit') {
+      this.#appModel.closeForm();
+    }
+
     this.#clearList();
+
+    if (this.#appModel.appStatus !== AppStatus.READY) {
+      this.#hideList();
+      return;
+    }
+
     const points = this.#getPreparedPointList();
-    console.log(points);
+
+    if (points.length === 0) {
+      this.#hideList();
+      return;
+    }
+
+    this.#sortModel.sortOn();
+
+    const listView = this.#renderListView();
+
     points.forEach((point) => {
       const pointPresenter = new PointPresenter({
         point,
@@ -61,60 +87,93 @@ export default class ListPresenter {
         destinationModel: this.#destinationsModel,
         offersModel: this.#offersModel,
         onOpenPoint: this.#handleOpen,
-        onClosePoint: this.#handleClose
+        onClosePoint: this.#handleClose,
       });
-      pointPresenter.init(this.#listView.element);
+
+      pointPresenter.init(listView.element);
       this.#listPresenters.set(point.id, pointPresenter);
     });
   }
 
   #clearList() {
-    this.#listPresenters.forEach((item) => {
-      item.destroy();
+    this.#listPresenters.forEach((presenter) => {
+      presenter.destroy();
     });
+
     this.#listPresenters.clear();
+  }
+
+  #hideList() {
+    this.#sortModel.sortOff();
+    this.#removeListView();
   }
 
   #handleOpen = (id) => {
     this.#appModel.openEditForm(id);
-  }
+  };
 
   #handleClose = () => {
     this.#appModel.closeForm();
-  }
-
+  };
 
   #render(type, data) {
     switch (type) {
-      case RenderTypes.MINOR:
-        this.#listPresenters.get(data.id).updatePoint(data);
+      case RenderTypes.MINOR: {
+        const presenter = this.#listPresenters.get(data.id);
+
+        if (presenter) {
+          presenter.updatePoint(data);
+        } else {
+          this.#renderPoints();
+        }
         break;
+      }
+
       case RenderTypes.MAJOR:
         this.#renderPoints();
         break;
+
       case RenderTypes.DELETE:
+        this.#listPresenters.get(data.id)?.destroy();
+        this.#listPresenters.delete(data.id);
+
+        if (this.#listPresenters.size === 0) {
+          this.#hideList();
+        }
         break;
     }
-
   }
 
   #handlePointModelEvent = (type, data) => {
-    this.#render(type, data)
-  }
+    this.#render(type, data);
+  };
 
   #handleFilterPointEvent = () => {
-    this.#render(RenderTypes.MAJOR);
-  }
+    this.#renderPoints();
+  };
 
-  #handleSortPointEvent = () => {
-    this.#render(RenderTypes.MAJOR);
-  }
-
-  #handleAppModelEvent = (type, { closed, opened }) => {
-
-    if (closed?.type === 'edit') {
-      this.#listPresenters.get(closed.id).closeForm();
+  #handleSortPointEvent = (type) => {
+    if (type === SortEventTypes.SORT_CHANGED) {
+      this.#renderPoints();
     }
-  }
+  };
 
+  #handleAppModelEvent = (type, data = {}) => {
+    if (type === 'STATUS') {
+      this.#renderPoints();
+      return;
+    }
+
+    if (data.closed?.type === 'edit') {
+      this.#listPresenters.get(data.closed.id)?.closeForm();
+    }
+
+    if (data.opened?.type === 'edit') {
+      this.#listPresenters.get(data.opened.id)?.openForm();
+    }
+
+    if (type === 'CLOSE' && data.closed?.type === 'create') {
+      this.#renderPoints();
+    }
+  };
 }

@@ -1,88 +1,159 @@
-import { DEFAULT_FILTER } from '../constants/constants.js';
-import { remove, render, RenderPosition } from '../framework/render.js';
+import { AppStatus, DEFAULT_FILTER } from '../constants/constants.js';
+import {
+  remove,
+  render,
+  RenderPosition,
+} from '../framework/render.js';
+import {
+  setFormPending,
+  showFormError,
+} from '../utils/form-feedback.js';
 import CreateButtonView from '../views/create-button-view.js';
 import FormView from '../views/form-view/form-view.js';
+
 export default class CreatePointPresenter {
   #createButtonView = null;
   #formView = null;
-  #formContainer = null;
+
+  #pointsModel = null;
   #offersModel = null;
-  #destinationsModel;
+  #destinationsModel = null;
   #filterModel = null;
   #appModel = null;
+  #renderListView = null;
+
+  #isPending = false;
 
   constructor({
-    formContainer,
+    pointsModel,
     offersModel,
     destinationsModel,
     filterModel,
     appModel,
+    renderListView,
   }) {
-    this.#formContainer = formContainer;
+    this.#pointsModel = pointsModel;
     this.#offersModel = offersModel;
     this.#destinationsModel = destinationsModel;
     this.#filterModel = filterModel;
     this.#appModel = appModel;
+    this.#renderListView = renderListView;
 
-    this.#appModel.addObserver(this.#handleAppModelEvent)
+    this.#appModel.addObserver(this.#handleAppModelEvent);
   }
+
   init(buttonContainer) {
-    this.#createButtonView = new CreateButtonView({ onClick: this.#onClick });
+    this.#createButtonView = new CreateButtonView({
+      onClick: this.#onClick,
+    });
+
     render(this.#createButtonView, buttonContainer);
+    this.#updateButtonState();
+  }
+
+  #updateButtonState() {
+    const isDisabled =
+      this.#appModel.appStatus !== AppStatus.READY ||
+      this.#appModel.openedForm?.type === 'create';
+
+    this.#createButtonView.updateElement({ isDisabled });
   }
 
   #onClick = () => {
+    if (
+      this.#appModel.appStatus !== AppStatus.READY ||
+      this.#appModel.openedForm?.type === 'create'
+    ) {
+      return;
+    }
+
+    this.#appModel.openCreateForm();
+  };
+
+  #open() {
+    this.#filterModel.setFilter(DEFAULT_FILTER);
+
+    const listView = this.#renderListView();
     const now = new Date();
-    const start = now;
-    const end = new Date(now.getTime() + 60 * 60 * 1000);
 
     this.#formView = new FormView({
       point: {
         basePrice: 0,
-        dateFrom: start,
-        dateTo: end,
+        dateFrom: now,
+        dateTo: new Date(now.getTime() + 60 * 60 * 1000),
         destination: '',
         offers: [],
-        type: 'train',
+        type: 'flight',
         isFavorite: false,
       },
       offersByType: this.#offersModel.offers,
       destinations: this.#destinationsModel.destinations,
       isNew: true,
       onFormSubmit: this.#onFormSubmit,
-      onRollupClick: this.#onRollupClick,
+      onRollupClick: this.#handleCancel,
+      onResetClick: this.#handleCancel,
     });
 
-    render(this.#formView, this.#formContainer, RenderPosition.AFTERBEGIN);
-    this.#filterModel.setFilter(DEFAULT_FILTER);
-    //this.#createButtonView.updateElement({ isDisabled: true });
-    this.#appModel.openCreateForm()
-  };
-
-  #onFormSubmit = () => {
-    console.log('!!!');
+    render(this.#formView, listView.element, RenderPosition.AFTERBEGIN);
+    this.#createButtonView.updateElement({ isDisabled: true });
   }
 
-  #close() {
-    remove(this.#formView);
-    this.#createButtonView.updateElement({
-      isDisabled: false,
-    });
-  }
-
-  #onRollupClick = () => {
-    this.#close();
-     this.#appModel.closeForm();
-  };
-
-  #handleAppModelEvent = (type, { closed, opened }) => {
-    console.log(type)
-    if (closed) {
-      if (closed.type === 'create') {
-        this.#close()
-
-      }
+  #onFormSubmit = async (point) => {
+    if (this.#isPending) {
+      return;
     }
 
+    this.#isPending = true;
+    setFormPending(this.#formView, 'saving');
+
+    try {
+      await this.#pointsModel.addPoint(point);
+      this.#appModel.closeForm();
+    } catch (error) {
+      console.error('Failed to create point:', error);
+
+      this.#isPending = false;
+      setFormPending(this.#formView);
+      showFormError(this.#formView, 'Could not save the event. Try again.');
+    }
+  };
+
+  #handleCancel = () => {
+    if (!this.#isPending) {
+      this.#appModel.closeForm();
+    }
+  };
+
+  #close() {
+    if (!this.#formView) {
+      return;
+    }
+
+    remove(this.#formView);
+    this.#formView = null;
+    this.#isPending = false;
+
+    this.#createButtonView.updateElement({ isDisabled: false });
   }
+
+  #handleAppModelEvent = (type, data = {}) => {
+    if (type === 'STATUS') {
+      this.#updateButtonState();
+      return;
+    }
+
+    if (type !== 'OPEN' && type !== 'CLOSE') {
+      return;
+    }
+
+    if (data.closed?.type === 'create') {
+      this.#close();
+    }
+
+    if (data.opened?.type === 'create') {
+      this.#open();
+    }
+
+    this.#updateButtonState();
+  };
 }
