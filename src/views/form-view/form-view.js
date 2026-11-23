@@ -280,7 +280,7 @@ export default class FormView extends AbstractStatefulView {
       {
         ...options,
         defaultDate: dateFrom,
-        //maxDate: dateTo,
+        maxDate: dateTo,
         onChange: this.#handleDateFromChange,
       }
     );
@@ -322,7 +322,10 @@ export default class FormView extends AbstractStatefulView {
       },
     });
 
-
+    this.#dateFromPicker?.set(
+      'maxDate',
+      dateTo || undefined
+    );
   };
 
   #destroyDatepickers() {
@@ -354,28 +357,17 @@ export default class FormView extends AbstractStatefulView {
   };
 
   #handlePriceChange = (evt) => {
-    const raw = evt.target.value.trim();
-    const price = Number(raw);
+    const price = Number(evt.target.value);
 
-    const isValid =
-      raw !== '' &&
-      Number.isFinite(price) &&
-      Number.isInteger(price) &&
-      price >= 0;
-
-    if (!isValid) {
-      evt.target.value = String(this._state.point.basePrice);
-      return;
+    if (!Number.isNaN(price)) {
+      this.updateElement({
+        point: {
+          ...this._state.point,
+          basePrice: price,
+        },
+      });
     }
-
-    this.updateElement({
-      point: {
-        ...this._state.point,
-        basePrice: price,
-      },
-    });
   };
-
 
   #handleRollupClick = (evt) => {
     evt.preventDefault();
