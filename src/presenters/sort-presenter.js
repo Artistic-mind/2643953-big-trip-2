@@ -12,13 +12,11 @@ export default class SortPresenter {
     this.#sortModel = sortModel;
     this.#filterModel = filterModel;
     this.#tripContainerElement = tripContainerElement;
-
   }
 
   init() {
     this.#sortModel.addObserver(this.#handleSortModelEvent);
     this.#filterModel.addObserver(this.#handleFilterModelEvent);
-    // this.#renderSort();
   }
 
   #renderSort() {
@@ -51,7 +49,7 @@ export default class SortPresenter {
         this.#destroySort();
         break;
     }
-  }
+  };
 
   #handleFilterModelEvent = () => {
     this.#sortModel.setSort(DEFAULT_SORT);
@@ -60,6 +58,5 @@ export default class SortPresenter {
   #destroySort() {
     remove(this.#sortView);
   }
-
 
 }

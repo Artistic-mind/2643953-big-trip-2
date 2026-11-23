@@ -7,7 +7,6 @@ export default class SortModel extends Observable {
   #isVisible = false;
 
   init() {
-
     this.#activeSort = DEFAULT_SORT;
   }
 
@@ -17,9 +16,7 @@ export default class SortModel extends Observable {
 
   setSort(sort) {
     this.#activeSort = sort;
-
     this._notify(SortEventTypes.SORT_CHANGED, this.#activeSort);
-
   }
 
   get isVisible() {
@@ -27,10 +24,10 @@ export default class SortModel extends Observable {
   }
 
   sortOn() {
-    if(this.#isVisible){
+    if (this.#isVisible) {
       return;
     }
-    
+
     this.#isVisible = true;
 
     this._notify(SortEventTypes.SORT_ON);

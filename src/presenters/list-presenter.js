@@ -14,7 +14,6 @@ export default class ListPresenter {
   #appModel = null;
   #filterModel = null;
   #sortModel = null;
-
   #listPresenters = new Map();
   #renderListView = null;
   #removeListView = null;
@@ -37,7 +36,6 @@ export default class ListPresenter {
     this.#sortModel = sortModel;
     this.#renderListView = renderListView;
     this.#removeListView = removeListView;
-
     this.#pointsModel.addObserver(this.#handlePointModelEvent);
     this.#appModel.addObserver(this.#handleAppModelEvent);
     this.#sortModel.addObserver(this.#handleSortPointEvent);
@@ -52,7 +50,6 @@ export default class ListPresenter {
     const filteredPoints = getFilteredPoints[this.#filterModel.filter](
       this.#pointsModel.points
     );
-
     return getSortedPoints[this.#sortModel.sort](filteredPoints);
   }
 

@@ -11,7 +11,6 @@ export default class InfoPresenter {
   #destinationModel = null;
   #offersModel = null;
   #containerElement = null;
-
   #infoView = null;
   #isVisible = false;
 
@@ -30,7 +29,6 @@ export default class InfoPresenter {
   init() {
     this.#infoView = new InfoView();
     this.#pointsModel.addObserver(this.#handlePointsModelEvent);
-
     this.#render();
   }
 
@@ -42,7 +40,6 @@ export default class InfoPresenter {
         remove(this.#infoView);
         this.#isVisible = false;
       }
-
       return;
     }
 

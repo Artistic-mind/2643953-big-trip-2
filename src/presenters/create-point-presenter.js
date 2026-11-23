@@ -1,4 +1,4 @@
-import { AppStatus, DEFAULT_FILTER, DEFAULT_TYPE } from '../constants/constants.js';
+import { AppStatus, DEFAULT_FILTER, DEFAULT_POINT } from '../constants/constants.js';
 import { runWithBlockedUi } from '../utils/ui-request-blocker.js';
 import {
   remove,
@@ -15,14 +15,12 @@ import FormView from '../views/form-view/form-view.js';
 export default class CreatePointPresenter {
   #createButtonView = null;
   #formView = null;
-
   #pointsModel = null;
   #offersModel = null;
   #destinationsModel = null;
   #filterModel = null;
   #appModel = null;
   #renderListView = null;
-
   #isPending = false;
 
   constructor({
@@ -39,7 +37,6 @@ export default class CreatePointPresenter {
     this.#filterModel = filterModel;
     this.#appModel = appModel;
     this.#renderListView = renderListView;
-
     this.#appModel.addObserver(this.#handleAppModelEvent);
   }
 
@@ -77,7 +74,7 @@ export default class CreatePointPresenter {
     const listView = this.#renderListView();
 
     this.#formView = new FormView({
-      point: {...DEFAULT_POINT},
+      point: { ...DEFAULT_POINT },
       offersByType: this.#offersModel.offers,
       destinations: this.#destinationsModel.destinations,
       isNew: true,
