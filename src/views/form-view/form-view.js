@@ -322,10 +322,7 @@ export default class FormView extends AbstractStatefulView {
       },
     });
 
-    // this.#dateFromPicker?.set(
-    //   'maxDate',
-    //   dateTo || undefined
-    // );
+
   };
 
   #destroyDatepickers() {

@@ -83,7 +83,7 @@ export default class CreatePointPresenter {
         dateTo: new Date(now.getTime() + 60 * 60 * 1000),
         destination: '',
         offers: [],
-        type: 'flight',
+        type: 'train',
         isFavorite: false,
       },
       offersByType: this.#offersModel.offers,

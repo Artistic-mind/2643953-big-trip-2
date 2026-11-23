@@ -22,6 +22,7 @@ import {
   AUTHORIZATION,
   SERVER,
 } from '../constants/constants.js';
+import InfoPresenter from './info-presenter.js';
 
 export default class TripPresenter {
   #pointsModel = null;
@@ -36,6 +37,7 @@ export default class TripPresenter {
   #listPresenter = null;
   #createPointPresenter = null;
   #messagePresenter = null;
+  #infoPresenter = null;
 
   #listView = null;
 
@@ -131,6 +133,14 @@ export default class TripPresenter {
     this.#listPresenter.init();
 
     this.#appModel.setAppStatus(AppStatus.READY);
+
+    this.#infoPresenter = new InfoPresenter({
+      pointsModel: this.#pointsModel,
+      destinationModel: this.#destinationsModel,
+      offersModel: this.#offersModel,
+      containerElement: this.tripMainContainer,
+    });
+    this.#infoPresenter.init();
   }
 
   #renderListView = () => {
