@@ -1,5 +1,6 @@
 import { remove, render, replace } from '../framework/render.js';
-import { getPreparedOffers } from '../utils/offers.js';
+import { getCheckedOffers, getPreparedOffers } from '../utils/offers.js';
+import { runWithBlockedUi } from '../utils/ui-request-blocker.js';
 import {
   setFormPending,
   showFormError,
@@ -64,7 +65,7 @@ export default class PointPresenter {
   }
 
   #getCheckedOffers() {
-    return getPreparedOffers({
+    return getCheckedOffers({
       checkedOffers: this.#point.offers,
       allOffers: this.#offersModel.getOffersByType(this.#point.type),
     });
@@ -122,10 +123,12 @@ export default class PointPresenter {
     setFormPending(this.#formView, 'saving');
 
     try {
-      await this.#pointsModel.updatePoint({
-        ...updatedPoint,
-        id: this.#point.id,
-      });
+      await runWithBlockedUi(() =>
+        this.#pointsModel.updatePoint({
+          ...updatedPoint,
+          id: this.#point.id,
+        })
+      );
 
       this.#onClosePoint();
     } catch (error) {
@@ -146,7 +149,9 @@ export default class PointPresenter {
     setFormPending(this.#formView, 'deleting');
 
     try {
-      await this.#pointsModel.deletePoint(this.#point.id);
+      await runWithBlockedUi(() =>
+        this.#pointsModel.deletePoint(this.#point.id)
+      );
       this.#onClosePoint();
     } catch (error) {
       console.error('Failed to delete point:', error);
@@ -165,14 +170,12 @@ export default class PointPresenter {
     this.#isFavoritePending = true;
 
     try {
-      await this.#pointsModel.changeFavorite(this.#point.id);
+      await runWithBlockedUi(() =>
+        this.#pointsModel.changeFavorite(this.#point.id)
+      );
     } catch (error) {
       console.error('Failed to update favorite:', error);
-
-      this.#pointView.element.classList.add('shake');
-      setTimeout(() => {
-        this.#pointView.element.classList.remove('shake');
-      }, 600);
+      this.#pointView.shake();
     } finally {
       this.#isFavoritePending = false;
     }

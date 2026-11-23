@@ -27,10 +27,10 @@ export default class SortModel extends Observable {
   }
 
   sortOn() {
-    if(this.#isVisible){
+    if (this.#isVisible) {
       return;
     }
-    
+
     this.#isVisible = true;
 
     this._notify(SortEventTypes.SORT_ON);

@@ -24,10 +24,14 @@ export default class InfoView extends AbstractStatefulView {
     });
   }
 
+  _restoreHandlers() {
+    return;
+  }
+
   get template() {
     return createTemplate(this._state);
   }
-  
+
   setInfo(info) {
     this._setState(info);
   }

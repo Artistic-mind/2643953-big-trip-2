@@ -48,4 +48,6 @@ export const showFormError = (formView, message) => {
   errorElement.textContent = message;
 
   form.querySelector('.event__header')?.append(errorElement);
+
+  formView.shake();
 };
