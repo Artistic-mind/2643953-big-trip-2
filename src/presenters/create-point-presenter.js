@@ -1,4 +1,4 @@
-import { AppStatus, DEFAULT_FILTER, DEFAULT_POINT } from '../constants/constants.js';
+import { AppStatus, DEFAULT_FILTER, DEFAULT_TYPE } from '../constants/constants.js';
 import { runWithBlockedUi } from '../utils/ui-request-blocker.js';
 import {
   remove,
