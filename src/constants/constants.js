@@ -37,6 +37,21 @@ export const Types = {
   SIGHTSEEING: 'sightseeing',
   RESTAURANT: 'restaurant',
 };
+
+export const DEFAULT_TYPE = Types.FLIGHT;
+
+export const DEFAULT_POINT = {
+  basePrice: 0,
+  dateFrom: '',
+  dateTo: '',
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: DEFAULT_TYPE,
+};
+
+export const DATEPICKER_FORMAT = 'd/m/y H:i';
+
 export const Filters = {
   EVERYTHING: 'everything',
   FUTURE: 'future',

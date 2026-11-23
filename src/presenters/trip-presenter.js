@@ -4,6 +4,7 @@ import DestinationsModel from '../models/destinations-model.js';
 import FilterModel from '../models/filter-model.js';
 import SortModel from '../models/sort-model.js';
 import AppModel from '../models/app-model.js';
+import { isUiRequestPending } from '../utils/ui-request-blocker.js';
 
 import PointsApiService from '../api/points-api.js';
 import OffersApiService from '../api/offers-api.js';
@@ -176,7 +177,7 @@ export default class TripPresenter {
   };
 
   #handleDocumentKeydown = ({ key }) => {
-    if (key === 'Escape') {
+    if (key === 'Escape' && !isUiRequestPending()) {
       this.#appModel.closeForm();
     }
   };

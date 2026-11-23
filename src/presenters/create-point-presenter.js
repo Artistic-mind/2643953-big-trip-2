@@ -1,4 +1,5 @@
-import { AppStatus, DEFAULT_FILTER } from '../constants/constants.js';
+import { AppStatus, DEFAULT_FILTER, DEFAULT_POINT } from '../constants/constants.js';
+import { runWithBlockedUi } from '../utils/ui-request-blocker.js';
 import {
   remove,
   render,
@@ -74,18 +75,9 @@ export default class CreatePointPresenter {
     this.#filterModel.setFilter(DEFAULT_FILTER);
 
     const listView = this.#renderListView();
-    const now = new Date();
 
     this.#formView = new FormView({
-      point: {
-        basePrice: 0,
-        dateFrom: now,
-        dateTo: new Date(now.getTime() + 60 * 60 * 1000),
-        destination: '',
-        offers: [],
-        type: 'train',
-        isFavorite: false,
-      },
+      point: {...DEFAULT_POINT},
       offersByType: this.#offersModel.offers,
       destinations: this.#destinationsModel.destinations,
       isNew: true,
@@ -107,7 +99,9 @@ export default class CreatePointPresenter {
     setFormPending(this.#formView, 'saving');
 
     try {
-      await this.#pointsModel.addPoint(point);
+      await runWithBlockedUi(() =>
+        this.#pointsModel.addPoint(point)
+      );
       this.#appModel.closeForm();
     } catch (error) {
       console.error('Failed to create point:', error);

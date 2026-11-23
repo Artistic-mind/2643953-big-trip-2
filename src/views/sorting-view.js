@@ -2,10 +2,10 @@ import { Sorting } from '../constants/constants.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 
-const createTemplate = ({sort}) => (`
+const createTemplate = ({ sort }) => (`
   <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
 
-    ${Object.values(Sorting).map(({name, isDisabled})=> (`
+    ${Object.values(Sorting).map(({ name, isDisabled }) => (`
       <div class="trip-sort__item  trip-sort__item--${name}">
         <input
           id="sort-${name}"
@@ -15,7 +15,7 @@ const createTemplate = ({sort}) => (`
           value="sort-${name}"
 
           ${sort === `sort-${name}` ? 'checked' : ''}
-          ${isDisabled ? 'disabled':''}
+          ${isDisabled ? 'disabled' : ''}
         >
         <label
           class="trip-sort__btn"
@@ -24,22 +24,22 @@ const createTemplate = ({sort}) => (`
       </div>
     `)).join('')}
   </form>
-          `);
+`);
 
-export default class SortingView extends AbstractStatefulView{
-    #onChange = null;
-  constructor({sort, onChange}){
+export default class SortingView extends AbstractStatefulView {
+  #onChange = null;
+
+  constructor({ sort, onChange }) {
     super();
     this.#onChange = onChange;
     this._setState({
       sort,
-
     });
 
     this._restoreHandlers();
   }
 
-  _restoreHandlers(){
+  _restoreHandlers() {
     this.element.addEventListener('change', this.#handleChange);
   }
 
@@ -49,8 +49,7 @@ export default class SortingView extends AbstractStatefulView{
     });
   }
 
-  #handleChange = ({target}) => {
-    console.log(target.value);
-    this.#onChange (target.value);
+  #handleChange = ({ target }) => {
+    this.#onChange(target.value);
   };
 }
