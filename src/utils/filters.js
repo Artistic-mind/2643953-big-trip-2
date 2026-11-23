@@ -8,4 +8,4 @@ export const getFilters = (points) => {
       isDisabled: getFilteredPoints[item](points).length === 0
     })
   })
-}
+};

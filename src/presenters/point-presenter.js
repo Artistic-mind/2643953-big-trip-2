@@ -1,5 +1,5 @@
 import { remove, render, replace } from '../framework/render.js';
-import { getCheckedOffers, getPreparedOffers } from '../utils/offers.js';
+import { getCheckedOffers } from '../utils/offers.js';
 import { runWithBlockedUi } from '../utils/ui-request-blocker.js';
 import {
   setFormPending,

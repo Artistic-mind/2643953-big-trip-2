@@ -60,8 +60,8 @@ export const createFormHeaderTemplate = ({
         <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
           ${Object.values(Types)
-            .map((type) => createTypeTemplate(type, point.type))
-            .join('')}
+    .map((type) => createTypeTemplate(type, point.type))
+    .join('')}
         </fieldset>
       </div>
     </div>

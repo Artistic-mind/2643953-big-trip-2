@@ -22,16 +22,16 @@ const createTemplate = ({
       method="post"
     >
       ${createFormHeaderTemplate({
-        point,
-        destination,
-        destinations,
-        isNew,
-      })}
+    point,
+    destination,
+    destinations,
+    isNew,
+  })}
 
       ${createFormDetailsTemplate({
-        offers,
-        destination,
-      })}
+    offers,
+    destination,
+  })}
     </form>
   </li>
 `;
@@ -129,7 +129,7 @@ export default class FormView extends AbstractStatefulView {
     const options = {
       enableTime: true,
       dateFormat: DATEPICKER_FORMAT,
-      time_24hr: true,
+      Time24hr: true,
       minuteIncrement: 1,
     };
 

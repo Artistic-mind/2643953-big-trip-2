@@ -41,7 +41,7 @@ export default class FilterPresenter {
     this.#filterView.updateElement({
       filters: getFilters(this.#pointsModel.points)
     });
-  }
+  };
 
   #handleAppModelChange = (type) => {
     if (type === 'STATUS') {

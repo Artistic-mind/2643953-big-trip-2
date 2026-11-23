@@ -14,4 +14,4 @@ export const getFilteredPoints = {
     }),
   [Filters.PAST]: (points) =>
     points.filter((point) => new Date(point.dateTo) < new Date()),
-}
+};

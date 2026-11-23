@@ -24,7 +24,7 @@ export const AppStatus = {
 export const AppMessages = {
   [AppStatus.LOADING]: 'Loading...',
   [AppStatus.ERROR]: 'Failed to load latest route information',
-}
+};
 
 export const Types = {
   TAXI: 'taxi',
@@ -88,7 +88,7 @@ export const Sorting = {
     name: 'offers',
     isDisabled: true,
   },
-}
+};
 
 export const DEFAULT_SORT = `sort-${Sorting.DAY.name}`;
 
@@ -102,5 +102,5 @@ export const SortEventTypes = {
   SORT_CHANGED: 'SORT_CHANGED',
   SORT_ON: 'SORT_ON',
   SORT_OFF: 'SORT_OFF',
-}
+};
 

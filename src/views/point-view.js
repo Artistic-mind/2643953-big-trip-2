@@ -5,9 +5,6 @@ import duration from 'dayjs/plugin/duration.js';
 dayjs.extend(duration);
 
 
-const DATE_FORMAT = 'DD/MM/YY HH:mm';
-
-const formatDate = (date) => dayjs(date).format(DATE_FORMAT);
 const formatMonthDay = (date) => dayjs(date).format('MMM D').toUpperCase(); // "MAR 18"
 const formatTime = (date) => dayjs(date).format('HH:mm');
 const formatDateTimeAttr = (date) => dayjs(date).format('YYYY-MM-DDTHH:mm');
@@ -111,21 +108,21 @@ export default class PointView extends AbstractStatefulView {
     this._setState({
 
       isFavorite: this.#point.isFavorite
-    })
+    });
 
     this._restoreHandlers();
   }
 
 
- _restoreHandlers(){
-     this.element
+_restoreHandlers(){
+    this.element
       .querySelector('.event__rollup-btn')
       .addEventListener('click', this.#editClickHandler);
 
-     this.element
-     .querySelector('.event__favorite-btn')
-     .addEventListener('click', this.#handleFavoriteClick);
- }
+    this.element
+      .querySelector('.event__favorite-btn')
+      .addEventListener('click', this.#handleFavoriteClick);
+  }
 
   #editClickHandler = (evt) => {
     evt.preventDefault();

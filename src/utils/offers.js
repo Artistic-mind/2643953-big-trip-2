@@ -5,4 +5,4 @@ export const getPreparedOffers = ({ checkedOffers, allOffers }) => allOffers
   }));
 
 export const getCheckedOffers = ({ checkedOffers, allOffers }) => allOffers
-  .filter((item) => checkedOffers.includes(item.id))
+  .filter((item) => checkedOffers.includes(item.id));

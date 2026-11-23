@@ -11,7 +11,7 @@ export default class MessageView extends AbstractView {
     super();
     this.#text = text;
   }
-  
+
   get template() {
     return createTemplate(this.#text);
   }

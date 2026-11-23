@@ -1,5 +1,3 @@
-
-import { DEFAULT_FILTER, Filters } from '../constants/constants.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 const createTemplate = ({filter, filters}) => (`
   <form class="trip-filters" action="#" method="get">
@@ -38,6 +36,7 @@ export default class FilterView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.addEventListener('change', this.#handleChange);
   }
+
   get template() {
     return createTemplate({
       filter: this._state.filter,

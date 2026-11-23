@@ -1,7 +1,7 @@
-import { AppMessages, AppStatus, EmptyMessages } from "../constants/constants";
-import { remove, render } from "../framework/render";
-import { getFilteredPoints } from "../utils/filter-points";
-import MessageView from "../views/message-view";
+import { AppMessages, AppStatus, EmptyMessages } from '../constants/constants';
+import { remove, render } from '../framework/render';
+import { getFilteredPoints } from '../utils/filter-points';
+import MessageView from '../views/message-view';
 
 export default class MessagePresenter {
   #appModel = null;

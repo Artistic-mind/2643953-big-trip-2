@@ -26,13 +26,13 @@ export default class AppModel extends Observable {
     this.#openForm({
       type: 'edit',
       id,
-    })
+    });
   }
 
   openCreateForm() {
     this.#openForm({
       type: 'create',
-    })
+    });
   }
 
   #openForm(form) {
@@ -42,7 +42,7 @@ export default class AppModel extends Observable {
     this._notify('OPEN', {
       closed: closeForm,
       opened: this.#openedForm,
-    })
+    });
   }
 
   closeForm() {
@@ -55,6 +55,6 @@ export default class AppModel extends Observable {
 
     this._notify('CLOSE', {
       closed: closeForm,
-    })
+    });
   }
 }

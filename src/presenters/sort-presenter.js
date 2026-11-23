@@ -51,7 +51,7 @@ export default class SortPresenter {
         this.#destroySort();
         break;
     }
-  }
+  };
 
   #handleFilterModelEvent = () => {
     this.#sortModel.setSort(DEFAULT_SORT);

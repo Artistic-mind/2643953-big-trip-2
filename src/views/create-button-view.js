@@ -33,8 +33,8 @@ export default class CreateButtonView extends AbstractStatefulView {
     this.#onClick();
     this.updateElement({
       isDisabled: true,
-    })
-  }
+    });
+  };
 
 }
 
