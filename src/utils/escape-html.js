@@ -3,7 +3,7 @@ const ESCAPED_SYMBOLS = {
   '<': '&lt;',
   '>': '&gt;',
   '"': '&quot;',
-  "'": '&#39;',
+  '\'': '&#39;',
 };
 
 export const escapeHtml = (value = '') =>

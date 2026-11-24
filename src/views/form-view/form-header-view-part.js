@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Types } from '../../constants/constants.js';
+import { Type } from '../../constants/constants.js';
 import { escapeHtml } from '../../utils/escape-html.js';
 
 const DATE_FORMAT = 'DD/MM/YY HH:mm';
@@ -59,7 +59,7 @@ export const createFormHeaderTemplate = ({
       <div class="event__type-list">
         <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
-          ${Object.values(Types)
+          ${Object.values(Type)
     .map((type) => createTypeTemplate(type, point.type))
     .join('')}
         </fieldset>

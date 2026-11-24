@@ -1,7 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-const createTemplate = ({filter, filters}) => (`
+const createTemplate = ({ filter, filters }) => (`
   <form class="trip-filters" action="#" method="get">
-
    ${filters.map((item) => (`
       <div class="trip-filters__filter">
         <input
@@ -33,9 +32,6 @@ export default class FilterView extends AbstractStatefulView {
     });
     this._restoreHandlers();
   }
-  _restoreHandlers() {
-    this.element.addEventListener('change', this.#handleChange);
-  }
 
   get template() {
     return createTemplate({
@@ -44,8 +40,11 @@ export default class FilterView extends AbstractStatefulView {
     });
   }
 
-  #handleChange = ({ target }) => {
+  _restoreHandlers() {
+    this.element.addEventListener('change', this.#handleChange);
+  }
 
+  #handleChange = ({ target }) => {
     this.#onChange(target.value);
   };
 }

@@ -26,7 +26,7 @@ export const AppMessages = {
   [AppStatus.ERROR]: 'Failed to load latest route information',
 };
 
-export const Types = {
+export const Type = {
   TAXI: 'taxi',
   BUS: 'bus',
   TRAIN: 'train',
@@ -38,7 +38,7 @@ export const Types = {
   RESTAURANT: 'restaurant',
 };
 
-export const DEFAULT_TYPE = Types.FLIGHT;
+export const DEFAULT_TYPE = Type.FLIGHT;
 
 export const DEFAULT_POINT = {
   basePrice: 0,
@@ -52,19 +52,19 @@ export const DEFAULT_POINT = {
 
 export const DATEPICKER_FORMAT = 'd/m/y H:i';
 
-export const Filters = {
+export const Filter = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past'
 };
-export const DEFAULT_FILTER = Filters.EVERYTHING;
+export const DEFAULT_FILTER = Filter.EVERYTHING;
 
 export const EmptyMessages = {
-  [Filters.EVERYTHING]: 'Click New Event to create your first point',
-  [Filters.PAST]: 'There are no past events now',
-  [Filters.PRESENT]: 'There are no present events now',
-  [Filters.FUTURE]: 'There are no future events now',
+  [Filter.EVERYTHING]: 'Click New Event to create your first point',
+  [Filter.PAST]: 'There are no past events now',
+  [Filter.PRESENT]: 'There are no present events now',
+  [Filter.FUTURE]: 'There are no future events now',
 };
 
 export const Sorting = {
@@ -92,13 +92,13 @@ export const Sorting = {
 
 export const DEFAULT_SORT = `sort-${Sorting.DAY.name}`;
 
-export const RenderTypes = {
+export const RenderType = {
   MINOR: 'minor',
   MAJOR: 'major',
   DELETE: 'delete'
 };
 
-export const SortEventTypes = {
+export const SortEventType = {
   SORT_CHANGED: 'SORT_CHANGED',
   SORT_ON: 'SORT_ON',
   SORT_OFF: 'SORT_OFF',

@@ -1,5 +1,5 @@
 import Observable from '../framework/observable.js';
-import { RenderTypes } from '../constants/constants.js';
+import { RenderType } from '../constants/constants.js';
 
 export default class PointsModel extends Observable {
   #points = [];
@@ -22,12 +22,12 @@ export default class PointsModel extends Observable {
     const createdPoint = await this.#pointsApiService.addPoint(point);
 
     this.#points = [...this.#points, createdPoint];
-    this._notify(RenderTypes.MAJOR, createdPoint);
+    this._notify(RenderType.MAJOR, createdPoint);
 
     return createdPoint;
   }
 
-  async updatePoint(updatedPoint, renderType = RenderTypes.MAJOR) {
+  async updatePoint(updatedPoint, renderType = RenderType.MAJOR) {
     const index = this.#points.findIndex(
       (point) => point.id === updatedPoint.id
     );
@@ -59,7 +59,7 @@ export default class PointsModel extends Observable {
         ...point,
         isFavorite: !point.isFavorite,
       },
-      RenderTypes.MINOR
+      RenderType.MINOR
     );
   }
 
@@ -73,6 +73,6 @@ export default class PointsModel extends Observable {
     await this.#pointsApiService.deletePoint(id);
 
     this.#points = this.#points.filter((item) => item.id !== id);
-    this._notify(RenderTypes.DELETE, point);
+    this._notify(RenderType.DELETE, point);
   }
 }

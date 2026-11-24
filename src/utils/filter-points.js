@@ -1,9 +1,9 @@
-import { Filters } from '../constants/constants.js';
+import { Filter } from '../constants/constants.js';
 
 export const getFilteredPoints = {
-  [Filters.EVERYTHING]: (points) => points,
-  [Filters.FUTURE]: (points) => points.filter((point) => new Date(point.dateFrom) > new Date()),
-  [Filters.PRESENT]: (points) =>
+  [Filter.EVERYTHING]: (points) => points,
+  [Filter.FUTURE]: (points) => points.filter((point) => new Date(point.dateFrom) > new Date()),
+  [Filter.PRESENT]: (points) =>
     points.filter((point) => {
       const now = new Date();
 
@@ -12,6 +12,6 @@ export const getFilteredPoints = {
         new Date(point.dateTo) >= now
       );
     }),
-  [Filters.PAST]: (points) =>
+  [Filter.PAST]: (points) =>
     points.filter((point) => new Date(point.dateTo) < new Date()),
 };

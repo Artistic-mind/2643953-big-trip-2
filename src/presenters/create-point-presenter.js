@@ -1,14 +1,14 @@
-import { AppStatus, DEFAULT_FILTER, DEFAULT_POINT } from '../constants/constants.js';
+import {
+  AppStatus,
+  DEFAULT_FILTER,
+  DEFAULT_POINT,
+} from '../constants/constants.js';
 import { runWithBlockedUi } from '../utils/ui-request-blocker.js';
 import {
   remove,
   render,
   RenderPosition,
 } from '../framework/render.js';
-import {
-  setFormPending,
-  showFormError,
-} from '../utils/form-feedback.js';
 import CreateButtonView from '../views/create-button-view.js';
 import FormView from '../views/form-view/form-view.js';
 
@@ -60,6 +60,46 @@ export default class CreatePointPresenter {
     this.#createButtonView.updateElement({ isDisabled });
   }
 
+  #open() {
+    this.#filterModel.setFilter(DEFAULT_FILTER);
+
+    const listView = this.#renderListView();
+
+    this.#formView = new FormView({
+      point: { ...DEFAULT_POINT },
+      offersByType: this.#offersModel.offers,
+      destinations: this.#destinationsModel.destinations,
+      isNew: true,
+      onFormSubmit: this.#onFormSubmit,
+      onRollupClick: this.#handleCancel,
+      onResetClick: this.#handleCancel,
+    });
+
+    render(
+      this.#formView,
+      listView.element,
+      RenderPosition.AFTERBEGIN
+    );
+
+    this.#createButtonView.updateElement({
+      isDisabled: true,
+    });
+  }
+
+  #close() {
+    if (!this.#formView) {
+      return;
+    }
+
+    remove(this.#formView);
+    this.#formView = null;
+    this.#isPending = false;
+
+    this.#createButtonView.updateElement({
+      isDisabled: false,
+    });
+  }
+
   #onClick = () => {
     if (
       this.#appModel.appStatus !== AppStatus.READY ||
@@ -71,44 +111,24 @@ export default class CreatePointPresenter {
     this.#appModel.openCreateForm();
   };
 
-  #open() {
-    this.#filterModel.setFilter(DEFAULT_FILTER);
-
-    const listView = this.#renderListView();
-
-    this.#formView = new FormView({
-      point: {...DEFAULT_POINT},
-      offersByType: this.#offersModel.offers,
-      destinations: this.#destinationsModel.destinations,
-      isNew: true,
-      onFormSubmit: this.#onFormSubmit,
-      onRollupClick: this.#handleCancel,
-      onResetClick: this.#handleCancel,
-    });
-
-    render(this.#formView, listView.element, RenderPosition.AFTERBEGIN);
-    this.#createButtonView.updateElement({ isDisabled: true });
-  }
-
   #onFormSubmit = async (point) => {
     if (this.#isPending) {
       return;
     }
 
     this.#isPending = true;
-    setFormPending(this.#formView, 'saving');
+    this.#formView.setSaving();
 
     try {
       await runWithBlockedUi(() =>
         this.#pointsModel.addPoint(point)
       );
-      this.#appModel.closeForm();
-    } catch (error) {
-      console.error('Failed to create point:', error);
 
       this.#isPending = false;
-      setFormPending(this.#formView);
-      showFormError(this.#formView, 'Could not save the event. Try again.');
+      this.#appModel.closeForm();
+    } catch {
+      this.#isPending = false;
+      this.#formView?.resetPending();
     }
   };
 
@@ -117,18 +137,6 @@ export default class CreatePointPresenter {
       this.#appModel.closeForm();
     }
   };
-
-  #close() {
-    if (!this.#formView) {
-      return;
-    }
-
-    remove(this.#formView);
-    this.#formView = null;
-    this.#isPending = false;
-
-    this.#createButtonView.updateElement({ isDisabled: false });
-  }
 
   #handleAppModelEvent = (type, data = {}) => {
     if (type === 'STATUS') {

@@ -109,7 +109,6 @@ export default class TripPresenter {
         this.#destinationsModel.init(),
       ]);
     } catch (error) {
-      console.error('Failed to load trip data:', error);
       this.#appModel.setAppStatus(AppStatus.ERROR);
       return;
     }

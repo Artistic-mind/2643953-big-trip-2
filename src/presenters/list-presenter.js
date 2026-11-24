@@ -1,7 +1,7 @@
 import {
   AppStatus,
-  RenderTypes,
-  SortEventTypes,
+  RenderType,
+  SortEventType,
 } from '../constants/constants.js';
 import { getFilteredPoints } from '../utils/filter-points.js';
 import { getSortedPoints } from '../utils/sort-points.js';
@@ -118,7 +118,7 @@ export default class ListPresenter {
 
   #render(type, data) {
     switch (type) {
-      case RenderTypes.MINOR: {
+      case RenderType.MINOR: {
         const presenter = this.#listPresenters.get(data.id);
 
         if (presenter) {
@@ -129,11 +129,11 @@ export default class ListPresenter {
         break;
       }
 
-      case RenderTypes.MAJOR:
+      case RenderType.MAJOR:
         this.#renderPoints();
         break;
 
-      case RenderTypes.DELETE:
+      case RenderType.DELETE:
         this.#listPresenters.get(data.id)?.destroy();
         this.#listPresenters.delete(data.id);
 
@@ -153,7 +153,7 @@ export default class ListPresenter {
   };
 
   #handleSortPointEvent = (type) => {
-    if (type === SortEventTypes.SORT_CHANGED) {
+    if (type === SortEventType.SORT_CHANGED) {
       this.#renderPoints();
     }
   };

@@ -1,14 +1,16 @@
 import dayjs from 'dayjs';
+import { Sorting } from '../constants/constants.js';
+import { getSortedPoints } from './sort-points.js';
+
+const sortPointsByDay =
+  getSortedPoints[`sort-${Sorting.DAY.name}`];
 
 export const getCitiesString = (points, destinations) => {
   if (points.length === 0) {
     return '';
   }
 
-  const sortedPoints = [...points].sort(
-    (first, second) =>
-      dayjs(first.dateFrom).valueOf() - dayjs(second.dateFrom).valueOf()
-  );
+  const sortedPoints = sortPointsByDay(points);
 
   const cities = sortedPoints.map((point) =>
     destinations.find(
@@ -28,21 +30,13 @@ export const getTripPeriod = (points) => {
     return '';
   }
 
-  let start = dayjs(points[0].dateFrom);
-  let end = dayjs(points[0].dateTo);
+  const sortedPoints = sortPointsByDay(points);
 
-  for (const point of points) {
-    const dateFrom = dayjs(point.dateFrom);
-    const dateTo = dayjs(point.dateTo);
+  const firstPoint = sortedPoints[0];
+  const lastPoint = sortedPoints.at(-1);
 
-    if (dateFrom.isBefore(start)) {
-      start = dateFrom;
-    }
-
-    if (dateTo.isAfter(end)) {
-      end = dateTo;
-    }
-  }
+  const start = dayjs(firstPoint.dateFrom);
+  const end = dayjs(lastPoint.dateTo);
 
   if (start.isSame(end, 'day')) {
     return start.format('D MMM');

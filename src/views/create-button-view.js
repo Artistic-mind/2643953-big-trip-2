@@ -21,12 +21,12 @@ export default class CreateButtonView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-  _restoreHandlers() {
-    this.element.addEventListener('click', this.#handleClick);
-  }
-
   get template() {
     return createTemplate(this._state);
+  }
+
+  _restoreHandlers() {
+    this.element.addEventListener('click', this.#handleClick);
   }
 
   #handleClick = () => {

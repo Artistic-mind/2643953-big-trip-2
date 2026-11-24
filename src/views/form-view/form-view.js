@@ -115,16 +115,76 @@ export default class FormView extends AbstractStatefulView {
       ?.addEventListener('change', this.#handleOffersChange);
   }
 
+  removeElement() {
+    this.#destroyDatepickers();
+    super.removeElement();
+  }
+
+  reset(point) {
+    this.updateElement(
+      this.#parsePointToState(point, this._state.isNew)
+    );
+  }
+
+  setSaving() {
+    this.#setFormPending('saving');
+  }
+
+  setDeleting() {
+    this.#setFormPending('deleting');
+  }
+
+  resetPending() {
+    this.#setFormPending();
+  }
+
+  #setFormPending(action = null) {
+    const form = this.element.querySelector('form');
+
+    if (!form) {
+      return;
+    }
+
+    if (action) {
+      form.querySelector('.event__error')?.remove();
+    }
+
+    const isPending = action !== null;
+
+    form.querySelectorAll('input, button').forEach((control) => {
+      control.disabled = isPending;
+    });
+
+    const saveButton = form.querySelector('.event__save-btn');
+    const resetButton = form.querySelector('.event__reset-btn');
+
+    if (resetButton && !resetButton.dataset.defaultText) {
+      resetButton.dataset.defaultText = resetButton.textContent;
+    }
+
+    if (saveButton) {
+      saveButton.textContent =
+        action === 'saving' ? 'Saving...' : 'Save';
+    }
+
+    if (resetButton) {
+      resetButton.textContent =
+        action === 'deleting'
+          ? 'Deleting...'
+          : resetButton.dataset.defaultText;
+    }
+  }
+
   #initDatepickers() {
     this.#destroyDatepickers();
 
     const dateFrom = this._state.point.dateFrom
       ? new Date(this._state.point.dateFrom)
-      : undefined;
+      : null;
 
     const dateTo = this._state.point.dateTo
       ? new Date(this._state.point.dateTo)
-      : undefined;
+      : null;
 
     const options = {
       enableTime: true,
@@ -162,9 +222,31 @@ export default class FormView extends AbstractStatefulView {
     this.#dateToPicker = null;
   }
 
-  removeElement() {
-    this.#destroyDatepickers();
-    super.removeElement();
+  #parsePointToState(point = null, isNew = false) {
+    const preparedPoint = {
+      ...(point ?? {}),
+      offers: [...(point?.offers ?? [])],
+    };
+
+    const availableOffers =
+      this.#offersByType.find(
+        (item) => item.type === preparedPoint.type
+      )?.offers ?? [];
+
+    return {
+      point: preparedPoint,
+      offers: getPreparedOffers({
+        checkedOffers: [...preparedPoint.offers],
+        allOffers: availableOffers,
+      }),
+      isNew,
+    };
+  }
+
+  #parseStateToPoint(state) {
+    return {
+      ...state.point,
+    };
   }
 
   #handleDateFromChange = ([date]) => {
@@ -289,14 +371,21 @@ export default class FormView extends AbstractStatefulView {
       return;
     }
 
-    const { dateFrom, dateTo, basePrice } = this._state.point;
+    const {
+      dateFrom,
+      dateTo,
+      basePrice,
+    } = this._state.point;
 
     if (!dateFrom) {
       this.#dateFromPicker?.open();
       return;
     }
 
-    if (!dateTo || dayjs(dateTo).isBefore(dayjs(dateFrom))) {
+    if (
+      !dateTo ||
+      dayjs(dateTo).isBefore(dayjs(dateFrom))
+    ) {
       this.#dateToPicker?.open();
       return;
     }
@@ -329,35 +418,4 @@ export default class FormView extends AbstractStatefulView {
     evt.preventDefault();
     this.#onRollupClick();
   };
-
-  reset(point) {
-    this.updateElement(
-      this.#parsePointToState(point, this._state.isNew)
-    );
-  }
-
-  #parsePointToState = (point = null, isNew = false) => {
-    const preparedPoint = {
-      ...(point ?? {}),
-      offers: [...(point?.offers ?? [])],
-    };
-
-    const availableOffers =
-      this.#offersByType.find(
-        (item) => item.type === preparedPoint.type
-      )?.offers ?? [];
-
-    return {
-      point: preparedPoint,
-      offers: getPreparedOffers({
-        checkedOffers: [...preparedPoint.offers],
-        allOffers: availableOffers,
-      }),
-      isNew,
-    };
-  };
-
-  #parseStateToPoint = (state) => ({
-    ...state.point,
-  });
 }

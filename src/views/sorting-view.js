@@ -39,14 +39,14 @@ export default class SortingView extends AbstractStatefulView {
     this._restoreHandlers();
   }
 
-  _restoreHandlers() {
-    this.element.addEventListener('change', this.#handleChange);
-  }
-
   get template() {
     return createTemplate({
       sort: this._state.sort
     });
+  }
+
+  _restoreHandlers() {
+    this.element.addEventListener('change', this.#handleChange);
   }
 
   #handleChange = ({ target }) => {

@@ -6,7 +6,7 @@ let activeRequests = 0;
 const getBlocker = () => {
   if (!blocker) {
     blocker = new UiBlocker({
-      lowerLimit: 350,
+      lowerLimit: 0,
       upperLimit: 350,
     });
   }

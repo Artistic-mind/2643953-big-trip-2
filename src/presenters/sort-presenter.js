@@ -1,4 +1,4 @@
-import { DEFAULT_SORT, SortEventTypes } from '../constants/constants.js';
+import { DEFAULT_SORT, SortEventType } from '../constants/constants.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import SortingView from '../views/sorting-view.js';
 
@@ -12,13 +12,11 @@ export default class SortPresenter {
     this.#sortModel = sortModel;
     this.#filterModel = filterModel;
     this.#tripContainerElement = tripContainerElement;
-
   }
 
   init() {
     this.#sortModel.addObserver(this.#handleSortModelEvent);
     this.#filterModel.addObserver(this.#handleFilterModelEvent);
-    // this.#renderSort();
   }
 
   #renderSort() {
@@ -35,7 +33,7 @@ export default class SortPresenter {
 
   #handleSortModelEvent = (type, sort) => {
     switch (type) {
-      case SortEventTypes.SORT_CHANGED:
+      case SortEventType.SORT_CHANGED:
         if (!this.#sortView) {
           return;
         }
@@ -44,10 +42,10 @@ export default class SortPresenter {
         });
         break;
 
-      case SortEventTypes.SORT_ON:
+      case SortEventType.SORT_ON:
         this.#renderSort();
         break;
-      case SortEventTypes.SORT_OFF:
+      case SortEventType.SORT_OFF:
         this.#destroySort();
         break;
     }
@@ -60,6 +58,4 @@ export default class SortPresenter {
   #destroySort() {
     remove(this.#sortView);
   }
-
-
 }
